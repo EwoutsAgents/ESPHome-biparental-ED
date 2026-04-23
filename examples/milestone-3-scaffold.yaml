@@ -1,0 +1,31 @@
+esphome:
+  name: biparental-ed-m3
+  friendly_name: Biparental ED Milestone 3 Scaffold
+
+esp32:
+  board: esp32-c6-devkitc-1
+  framework:
+    type: esp-idf
+
+logger:
+
+external_components:
+  - source:
+      type: local
+      path: ../components
+    components: [biparental_ed]
+
+biparental_ed:
+  id: biparental_controller
+  update_interval: 1s
+  degraded_rssi_threshold: -72
+  hard_failure_timeout: 15s
+  degrade_persist_time: 10s
+  hold_down_time: 30s
+  standby_refresh_interval: 60s
+  failover_eligible_delay: 10s
+  post_failover_stabilize_time: 10s
+  preferred_reattach_timeout: 5s
+  enable_parent_response_callback: true
+  control_plane_error_threshold: 3
+  standby_replace_hysteresis: 5

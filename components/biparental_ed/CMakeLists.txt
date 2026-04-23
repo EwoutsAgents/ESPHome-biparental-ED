@@ -1,0 +1,11 @@
+idf_component_register(
+  SRCS
+    "biparental_ed.cpp"
+    "parent_health_monitor.cpp"
+    "candidate_manager.cpp"
+    "failover_controller.cpp"
+    "diagnostics_publisher.cpp"
+    "ot_platform_adapter.cpp"
+  INCLUDE_DIRS
+    "."
+)

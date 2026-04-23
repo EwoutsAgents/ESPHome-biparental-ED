@@ -1,266 +1,160 @@
 # ESPHome-biparental-ED
-This GitHub repository implements an ESPHome external component for the ESP32-C6 that introduces active-passive bi-parental behavior for a Thread End Device. The device maintains one active parent alongside one warm standby parent candidate. The standby candidate is kept warm by periodically refreshing parent-search information while the device remains attached to the active parent. If the active parent fails or its link quality degrades, the device should perform accelerated reattachment toward the preferred standby parent using the freshest available candidate information. The design must not assume direct failover based solely on a Child ID Request; instead, failover should remain compatible, wherever possible, with standard Thread/OpenThread attachment procedures. After failover, the newly selected parent becomes the active parent, and the device must then identify and warm a new standby candidate.
 
-Below is a clean continuation of your description using structured milestones, aligned with everything defined so far and suitable for both documentation and guiding implementation.
+ESPHome external component for ESP32-C6 to implement **active-passive bi-parental behavior** for a Thread End Device (ED):
 
----
+- one **active parent** used for all normal traffic,
+- one **warm standby parent candidate** tracked and refreshed in the background,
+- accelerated reattachment when active-parent quality becomes unacceptable.
 
-## Milestones
-
-### Milestone 1 — Problem Definition & Architecture Freeze
-
-**Goal:** Establish a precise and unambiguous definition of bi-parental behavior within Thread constraints.
-
-**Scope:**
-
-* Define the system as **active-passive** (not active-active).
-* Formalize that:
-
-  * only one parent is active at any time,
-  * the standby parent is a **warm candidate**, not a co-parent.
-* Define **parent failure conditions**, including:
-
-  * hard failure (timeouts, lost communication),
-  * degraded link (RSSI/LQI thresholds, packet loss),
-  * control-plane instability.
-* Map behavior to Thread primitives:
-
-  * MLE Parent Request / Parent Response,
-  * Child ID Request / Response,
-  * child supervision and reattachment behavior.
-
-**Deliverables:**
-
-* Architecture description
-* Parent selection and failover state machine
-* Definition of failure detection logic
+This project intentionally stays aligned with Thread/OpenThread attachment behavior and does **not** assume direct failover from child context alone.
 
 ---
 
-### Milestone 2 — Protocol-Level Feasibility Validation
+## Milestone 1 — Problem Definition & Architecture Freeze (started)
 
-**Goal:** Ensure the design is viable within Thread/OpenThread without requiring stack modification.
+### 1) Scope freeze
 
-**Scope:**
+This design is explicitly **active-passive**:
 
-* Validate constraints of the Thread protocol:
+- At any moment, the child has exactly one attached parent.
+- The standby is only a ranked, refreshed candidate (not a second active parent).
+- Failover means performing a fresh (but accelerated/preferred) attachment attempt, compatible with Thread procedures.
 
-  * single-parent child model,
-  * parent-scoped child identity,
-  * routing via one parent only.
-* Confirm feasibility of:
+### 2) In-scope / out-of-scope boundaries
 
-  * standby-parent awareness,
-  * periodic parent-search refresh (“warm standby”),
-  * accelerated reattachment toward a preferred parent.
-* Explicitly identify boundaries:
+**In scope (Milestone 1):**
 
-  * what remains compliant,
-  * what would require modifying OpenThread.
+- Behavior definitions and control logic.
+- State machine and failure policy.
+- Mapping logic to Thread primitives.
 
-**Deliverables:**
+**Out of scope (Milestone 1):**
 
-* Technical note: “What must be hacked vs. what remains compliant”
-* Defined strategy: **external component overlay (no stack fork)**
+- Forking or patching OpenThread internals.
+- Non-compliant shortcuts that bypass normal Parent Request/Child ID flows.
+- Performance tuning and hardware benchmarks.
 
----
+### 3) Architecture definition (frozen v0.1)
 
-### Milestone 3 — ESPHome External Component Design
+The external component is treated as an overlay controller around the Thread stack:
 
-**Goal:** Define the software architecture of the external component.
+1. **Parent Health Evaluator**
+   - consumes link/control-plane signals for current parent,
+   - classifies parent as healthy/degraded/failed.
 
-**Scope:**
+2. **Standby Candidate Tracker**
+   - maintains best known alternate parent candidate,
+   - refreshes candidate knowledge periodically,
+   - enforces freshness window and replacement policy.
 
-* Design component structure for ESPHome:
+3. **Failover Orchestrator**
+   - triggers reattachment when policy thresholds are crossed,
+   - biases attach behavior toward preferred standby where possible,
+   - applies hysteresis and hold-down timers.
 
-  * lifecycle integration (setup, loop, callbacks),
-  * interaction with OpenThread APIs.
-* Define internal modules:
+4. **Diagnostics Surface**
+   - exposes active parent identity, standby identity, state, reason codes, counters.
 
-  * ParentHealthMonitor
-  * CandidateManager
-  * FailoverController
-  * DiagnosticsPublisher
-* Specify the internal state machine implementation.
-* Define configuration schema exposed via YAML.
+### 4) State machine definition (frozen v0.1)
 
-**Deliverables:**
+```text
+[BOOTSTRAP]
+  -> ATTACHING_INITIAL
 
-* Repository structure
-* Component class definitions
-* YAML configuration interface
-* Initial compileable component scaffold
+ATTACHING_INITIAL
+  - success -> ATTACHED_ACTIVE_NO_STANDBY
+  - timeout/retry -> ATTACHING_INITIAL
 
----
+ATTACHED_ACTIVE_NO_STANDBY
+  - candidate discovered -> ATTACHED_ACTIVE_STANDBY_WARM
+  - active hard failure -> FAILOVER_TRIGGERED
 
-### Milestone 4 — Warm Standby & Parent Monitoring Implementation
+ATTACHED_ACTIVE_STANDBY_WARM
+  - active healthy -> stay
+  - standby stale/lost -> ATTACHED_ACTIVE_NO_STANDBY
+  - active degraded (sustained) -> FAILOVER_ELIGIBLE
+  - active hard failure -> FAILOVER_TRIGGERED
 
-**Goal:** Implement continuous monitoring and standby maintenance.
+FAILOVER_ELIGIBLE
+  - degradation clears (within hysteresis) -> ATTACHED_ACTIVE_STANDBY_WARM
+  - hold-down elapsed + degrade persists -> FAILOVER_TRIGGERED
 
-**Scope:**
+FAILOVER_TRIGGERED
+  -> REATTACHING_PREFERRED
 
-* Implement:
+REATTACHING_PREFERRED
+  - attach to preferred standby succeeds -> POST_FAILOVER_STABILIZE
+  - preferred fails -> REATTACHING_GENERIC
 
-  * active parent health monitoring,
-  * periodic parent-search refresh,
-  * candidate scoring and ranking,
-  * standby replacement logic.
-* Ensure:
+REATTACHING_GENERIC
+  - attach succeeds -> POST_FAILOVER_STABILIZE
+  - attach fails -> retry/backoff
 
-  * hysteresis to prevent oscillation,
-  * stability of standby selection,
-  * minimal overhead during normal operation.
+POST_FAILOVER_STABILIZE
+  - new active stable -> ATTACHED_ACTIVE_NO_STANDBY
+```
 
-**Deliverables:**
+### 5) Failure detection policy (frozen v0.1)
 
-* Functional warm-standby mechanism
-* Metrics for:
+Failure classification uses three channels and explicit persistence windows:
 
-  * active parent quality,
-  * standby candidate quality,
-  * freshness of standby data
+1. **Hard failure**
+   - no successful parent interaction for `hard_failure_timeout`.
+   - immediate transition toward failover path.
 
----
+2. **Link degradation**
+   - poor RSSI/LQI and/or packet delivery quality below threshold.
+   - must persist for `degrade_persist_time` before failover eligibility.
 
-### Milestone 5 — Failover Control & Accelerated Reattachment
+3. **Control-plane instability**
+   - repeated attach/supervision anomalies, excessive short detach/reattach churn.
+   - contributes to degradation score; can escalate to failover if sustained.
 
-**Goal:** Implement robust and deterministic failover behavior.
+### 6) Decision policy and anti-flap controls
 
-**Scope:**
+- Failover requires either:
+  - hard failure, or
+  - sustained degradation past threshold and hysteresis window.
+- After failover, a **hold-down** interval prevents immediate ping-pong.
+- Standby replacement is conservative: candidate must beat incumbent by margin and freshness.
 
-* Detect failure conditions based on defined policies.
-* Trigger accelerated reattachment toward the standby parent.
-* Ensure compatibility with Thread attach procedures:
+### 7) Mapping to Thread primitives
 
-  * Parent Request / Response
-  * Child ID Request / Response
-* Implement:
+Expected flow remains compatible with standard attach behavior:
 
-  * failover hysteresis,
-  * hold-down timers,
-  * retry logic.
+- discovery/selection phase informed by Parent Request/Parent Response behavior,
+- attachment via Child ID Request/Child ID Response,
+- normal child supervision retained,
+- no assumption that child can directly switch active parent without reattachment procedure.
 
-**Deliverables:**
+### 8) Milestone 1 deliverables status
 
-* Working failover mechanism
-* Verified transition between parents
-* Failover event logging and diagnostics
-
----
-
-### Milestone 6 — ESPHome Integration & Observability
-
-**Goal:** Expose functionality and diagnostics to ESPHome users.
-
-**Scope:**
-
-* Provide YAML configuration options:
-
-  * thresholds,
-  * timers,
-  * failover strategy parameters.
-* Expose entities:
-
-  * active parent ID
-  * standby parent ID
-  * failover count
-  * degraded state
-  * last failover reason
-* Integrate logging and debugging hooks.
-
-**Deliverables:**
-
-* Fully usable ESPHome external component
-* Example configurations
-* Debug-friendly output
+- [x] Architecture description
+- [x] Parent selection and failover state machine
+- [x] Failure detection logic definition
 
 ---
 
-### Milestone 7 — Hardware Validation on ESP32-C6 Testbed
+## Milestone 2 — Protocol-Level Feasibility Validation (completed)
 
-**Goal:** Validate behavior on real devices under realistic conditions.
+Milestone 2 deliverable note:
 
-**Scope:**
+- [`docs/milestone-2-protocol-feasibility.md`](docs/milestone-2-protocol-feasibility.md)
 
-* Use 5-node setup:
+Milestone 2 outcome:
 
-  * 2 parent routers,
-  * 1 end device under test,
-  * supporting nodes (leader / traffic generator).
-* Test scenarios:
-
-  * initial attach,
-  * standby discovery and warming,
-  * parent degradation,
-  * hard parent failure,
-  * failover execution,
-  * recovery and standby re-establishment.
-* Measure:
-
-  * failover latency,
-  * packet loss during transition,
-  * stability of parent selection.
-
-**Deliverables:**
-
-* Validation results
-* Measured performance metrics
-* Identified edge cases
+- Confirms feasibility of active-passive warm-standby behavior as an **external overlay**.
+- Freezes compliance boundaries for what can be implemented without stack modifications.
+- Explicitly separates compliant behavior from cases that would require OpenThread internal changes.
 
 ---
 
-### Milestone 8 — Optimization & Robustness
+## Roadmap
 
-**Goal:** Improve performance and reliability for real-world usage.
-
-**Scope:**
-
-* Optimize:
-
-  * refresh intervals,
-  * failover thresholds,
-  * power consumption impact.
-* Handle edge cases:
-
-  * rapid oscillation between parents,
-  * both parents degrading,
-  * network partitions.
-* Improve resilience:
-
-  * recovery strategies,
-  * watchdog behavior.
-
-**Deliverables:**
-
-* Stable and optimized implementation
-* Reduced failover latency and oscillation
-* Robust behavior under adverse conditions
-
----
-
-### Milestone 9 — Documentation & Release
-
-**Goal:** Make the project usable and reproducible.
-
-**Scope:**
-
-* Document:
-
-  * architecture,
-  * design decisions,
-  * limitations vs. standard Thread behavior.
-* Provide:
-
-  * setup instructions,
-  * example ESPHome configurations,
-  * test results and known issues.
-
-**Deliverables:**
-
-* Complete documentation
-* Public repository ready for use and contribution
-
----
-
-If you want, the next step can be turning **Milestone 3 into a concrete code architecture (files, classes, and interfaces)** so an implementation agent can start coding immediately.
-
+- **Milestone 3:** ESPHome external component design + compileable scaffold
+- **Milestone 4:** Warm standby implementation
+- **Milestone 5:** Failover control + accelerated reattachment
+- **Milestone 6:** ESPHome integration + observability
+- **Milestone 7:** ESP32-C6 hardware validation
+- **Milestone 8:** Optimization + robustness
+- **Milestone 9:** Documentation + release

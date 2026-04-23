@@ -30,11 +30,17 @@ class BiparentalEDComponent : public PollingComponent {
   void set_control_plane_error_threshold(uint32_t value) { this->control_plane_error_threshold_ = value; }
   void set_standby_replace_hysteresis(int value) { this->standby_replace_hysteresis_ = value; }
 
+  void set_neighbor_scan_interval_ms(uint32_t value) { this->neighbor_scan_interval_ms_ = value; }
+  void set_neighbor_max_age_ms(uint32_t value) { this->neighbor_max_age_ms_ = value; }
+  void set_parent_search_refresh_interval_ms(uint32_t value) { this->parent_search_refresh_interval_ms_ = value; }
+
  protected:
   void apply_runtime_configuration_();
+  void maybe_scan_neighbors_(uint32_t now_ms);
+  void maybe_trigger_parent_search_refresh_(uint32_t now_ms);
   void maybe_issue_failover_action_(uint32_t now_ms, const FailoverAction &action, const ParentCandidate &standby,
                                     bool standby_available);
-  void publish_diagnostics_(bool standby_available, const ParentCandidate &standby);
+  void publish_diagnostics_(const ParentMetrics &metrics, bool standby_available, const ParentCandidate &standby);
 
   int degraded_rssi_threshold_{-70};
   uint32_t hard_failure_timeout_ms_{15000};
@@ -48,6 +54,15 @@ class BiparentalEDComponent : public PollingComponent {
   uint32_t control_plane_error_threshold_{3};
   int standby_replace_hysteresis_{5};
 
+  uint32_t neighbor_scan_interval_ms_{10000};
+  uint32_t neighbor_max_age_ms_{60000};
+  // If non-zero, triggers OpenThread's better-parent search periodically.
+  // NOTE: this may cause an automatic parent switch by the stack.
+  uint32_t parent_search_refresh_interval_ms_{0};
+
+  uint32_t last_neighbor_scan_ms_{0};
+  uint32_t last_parent_search_ms_{0};
+
   ParentHealthMonitor parent_health_monitor_{};
   CandidateManager candidate_manager_{};
   FailoverController failover_controller_{};
@@ -55,6 +70,7 @@ class BiparentalEDComponent : public PollingComponent {
 
   NoopOpenThreadPlatformAdapter noop_ot_adapter_{};
   OpenThreadPlatformAdapter *ot_adapter_{&this->noop_ot_adapter_};
+  EspHomeOpenThreadPlatformAdapter esphome_ot_adapter_{};
 };
 
 }  // namespace biparental_ed

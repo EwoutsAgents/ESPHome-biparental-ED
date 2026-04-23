@@ -13,10 +13,15 @@ void DiagnosticsPublisher::publish(const DiagnosticsSnapshot &snapshot) {
   }
 
   ESP_LOGD(TAG,
-           "state=%u health=%u reason=%u standby=%s active=0x%04x standby_rloc=0x%04x failovers=%u",
+           "state=%u health=%u reason=%u standby=%s active=0x%04x (rssi=%d lm=%u age=%ums) standby=0x%04x (score=%d rssi=%d lm=%u fresh=%ums) failovers=%u",
            static_cast<unsigned>(snapshot.failover_state), static_cast<unsigned>(snapshot.health_state),
            static_cast<unsigned>(snapshot.fail_reason), snapshot.standby_valid ? "yes" : "no",
-           snapshot.active_parent_rloc16, snapshot.standby_parent_rloc16,
+           snapshot.active_parent_rloc16, snapshot.active_parent_average_rssi,
+           static_cast<unsigned>(snapshot.active_parent_link_margin),
+           static_cast<unsigned>(snapshot.active_parent_age_ms),
+           snapshot.standby_parent_rloc16, snapshot.standby_score, snapshot.standby_rssi,
+           static_cast<unsigned>(snapshot.standby_link_margin),
+           static_cast<unsigned>(snapshot.standby_freshness_ms),
            static_cast<unsigned>(snapshot.failover_count));
 
   this->last_snapshot_ = snapshot;
@@ -34,7 +39,14 @@ bool DiagnosticsPublisher::changed_(const DiagnosticsSnapshot &snapshot) const {
          this->last_snapshot_.standby_valid != snapshot.standby_valid ||
          this->last_snapshot_.active_parent_rloc16 != snapshot.active_parent_rloc16 ||
          this->last_snapshot_.standby_parent_rloc16 != snapshot.standby_parent_rloc16 ||
-         this->last_snapshot_.failover_count != snapshot.failover_count;
+         this->last_snapshot_.failover_count != snapshot.failover_count ||
+         this->last_snapshot_.active_parent_average_rssi != snapshot.active_parent_average_rssi ||
+         this->last_snapshot_.active_parent_link_margin != snapshot.active_parent_link_margin ||
+         this->last_snapshot_.active_parent_age_ms != snapshot.active_parent_age_ms ||
+         this->last_snapshot_.standby_score != snapshot.standby_score ||
+         this->last_snapshot_.standby_rssi != snapshot.standby_rssi ||
+         this->last_snapshot_.standby_link_margin != snapshot.standby_link_margin ||
+         this->last_snapshot_.standby_freshness_ms != snapshot.standby_freshness_ms;
 }
 
 }  // namespace biparental_ed

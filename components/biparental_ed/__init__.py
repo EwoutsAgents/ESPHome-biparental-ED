@@ -17,6 +17,10 @@ CONF_ENABLE_PARENT_RESPONSE_CALLBACK = "enable_parent_response_callback"
 CONF_CONTROL_PLANE_ERROR_THRESHOLD = "control_plane_error_threshold"
 CONF_STANDBY_REPLACE_HYSTERESIS = "standby_replace_hysteresis"
 
+CONF_NEIGHBOR_SCAN_INTERVAL = "neighbor_scan_interval"
+CONF_NEIGHBOR_MAX_AGE = "neighbor_max_age"
+CONF_PARENT_SEARCH_REFRESH_INTERVAL = "parent_search_refresh_interval"
+
 biparental_ed_ns = cg.esphome_ns.namespace("biparental_ed")
 BiparentalEDComponent = biparental_ed_ns.class_(
     "BiparentalEDComponent", cg.PollingComponent
@@ -39,6 +43,17 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_CONTROL_PLANE_ERROR_THRESHOLD, default=3): cv.positive_int,
         cv.Optional(CONF_STANDBY_REPLACE_HYSTERESIS, default=5): cv.int_range(
             min=0, max=50
+        ),
+
+        # Milestone 4
+        cv.Optional(CONF_NEIGHBOR_SCAN_INTERVAL, default="10s"): cv.All(
+            cv.time_period, cv.time_period_in_milliseconds_
+        ),
+        cv.Optional(CONF_NEIGHBOR_MAX_AGE, default="60s"): cv.positive_time_period_milliseconds,
+        # If non-zero, triggers OpenThread's better-parent search periodically.
+        # NOTE: this may cause an automatic parent switch by the stack.
+        cv.Optional(CONF_PARENT_SEARCH_REFRESH_INTERVAL, default="0s"): cv.All(
+            cv.time_period, cv.time_period_in_milliseconds_
         ),
     }
 ).extend(cv.polling_component_schema("1s"))
@@ -92,4 +107,18 @@ async def to_code(config):
     )
     cg.add(
         var.set_standby_replace_hysteresis(config[CONF_STANDBY_REPLACE_HYSTERESIS])
+    )
+
+    cg.add(
+        var.set_neighbor_scan_interval_ms(
+            config[CONF_NEIGHBOR_SCAN_INTERVAL].total_milliseconds
+        )
+    )
+    cg.add(
+        var.set_neighbor_max_age_ms(config[CONF_NEIGHBOR_MAX_AGE].total_milliseconds)
+    )
+    cg.add(
+        var.set_parent_search_refresh_interval_ms(
+            config[CONF_PARENT_SEARCH_REFRESH_INTERVAL].total_milliseconds
+        )
     )

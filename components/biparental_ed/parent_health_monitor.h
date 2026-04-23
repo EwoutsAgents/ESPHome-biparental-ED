@@ -22,6 +22,9 @@ struct ParentMetrics {
   bool valid{false};
   int8_t average_rssi{-127};
   int8_t last_rssi{-127};
+  uint16_t parent_rloc16{0xffff};
+  uint8_t parent_link_margin{0};
+  uint32_t parent_age_ms{0};
   bool supervision_ok{true};
   uint32_t control_plane_error_count{0};
   uint32_t last_parent_rx_ms{0};

@@ -92,14 +92,31 @@ biparental_ed:
 
 ### Milestone 3 limitations
 
-- OpenThread API calls are abstracted via an adapter and intentionally stubbed for now.
-- Callback registration and real parent-search/failover API calls are planned for Milestones 4/5.
+- OpenThread integration uses an adapter; parent monitoring + neighbor scanning are implemented in Milestone 4.
+- Deterministic failover + preferred-parent biasing are planned for Milestone 5.
+
+---
+
+## Milestone 4 — Warm Standby & Parent Monitoring (implemented)
+
+Milestone 4 deliverable note:
+
+- [`docs/milestone-4-warm-standby.md`](docs/milestone-4-warm-standby.md)
+
+Milestone 4 outcome:
+
+- Active parent monitoring via OpenThread parent RSSI/info APIs.
+- Warm standby candidate maintenance via neighbor-table scanning + hysteresis.
+- Metrics (log-based) for active parent quality, standby quality, and freshness.
+
+Example YAML:
+
+- [`examples/milestone-4-warm-standby.yaml`](examples/milestone-4-warm-standby.yaml)
 
 ---
 
 ## Roadmap
 
-- **Milestone 4:** Warm standby implementation
 - **Milestone 5:** Failover control + accelerated reattachment
 - **Milestone 6:** ESPHome integration + observability
 - **Milestone 7:** ESP32-C6 hardware validation

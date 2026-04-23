@@ -13,6 +13,17 @@ class OpenThreadPlatformAdapter {
 
   virtual bool is_attached_as_child() const = 0;
   virtual bool read_parent_metrics(ParentMetrics *metrics) = 0;
+  // Iterates router neighbors (excluding children) as candidates for standby selection.
+  // Callback must be fast and must not call back into OpenThread.
+  struct RouterNeighborInfo {
+    uint16_t rloc16{0xffff};
+    int8_t average_rssi{-127};
+    int8_t last_rssi{-127};
+    uint8_t link_margin{0};
+    uint32_t age_ms{0};
+  };
+  using RouterNeighborCallback = void (*)(void *context, const RouterNeighborInfo &info);
+  virtual bool read_router_neighbors(RouterNeighborCallback cb, void *context) = 0;
   virtual bool request_parent_search() = 0;
   virtual bool request_failover_to_preferred(uint16_t preferred_rloc16) = 0;
   virtual bool request_failover_generic() = 0;
@@ -30,15 +41,30 @@ class NoopOpenThreadPlatformAdapter : public OpenThreadPlatformAdapter {
     metrics->valid = false;
     metrics->average_rssi = -127;
     metrics->last_rssi = -127;
+    metrics->parent_rloc16 = 0xffff;
+    metrics->parent_link_margin = 0;
+    metrics->parent_age_ms = 0;
     metrics->supervision_ok = false;
     metrics->control_plane_error_count = 0;
     metrics->last_parent_rx_ms = 0;
     return false;
   }
 
+  bool read_router_neighbors(RouterNeighborCallback, void *) override { return false; }
+
   bool request_parent_search() override { return false; }
   bool request_failover_to_preferred(uint16_t) override { return false; }
   bool request_failover_generic() override { return false; }
+};
+
+class EspHomeOpenThreadPlatformAdapter : public OpenThreadPlatformAdapter {
+ public:
+  bool is_attached_as_child() const override;
+  bool read_parent_metrics(ParentMetrics *metrics) override;
+  bool read_router_neighbors(RouterNeighborCallback cb, void *context) override;
+  bool request_parent_search() override;
+  bool request_failover_to_preferred(uint16_t preferred_rloc16) override;
+  bool request_failover_generic() override;
 };
 
 }  // namespace biparental_ed

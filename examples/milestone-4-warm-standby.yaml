@@ -1,0 +1,46 @@
+esphome:
+  name: biparental-ed-m4
+  friendly_name: Biparental ED Milestone 4 Warm Standby
+
+esp32:
+  board: esp32-c6-devkitc-1
+  framework:
+    type: esp-idf
+
+logger:
+
+network:
+  enable_ipv6: true
+
+mdns:
+  id: mdns_comp
+
+openthread:
+  mdns_id: mdns_comp
+  device_type: FTD
+  # Dataset TLV (example placeholder). Must be a valid dataset for real hardware tests.
+  tlv: "0e080000000000010000000300000000"
+
+external_components:
+  - source:
+      type: local
+      path: ../components
+    components: [biparental_ed]
+
+biparental_ed:
+  id: biparental_controller
+  update_interval: 1s
+
+  # Health policy
+  degraded_rssi_threshold: -72
+  hard_failure_timeout: 15s
+  degrade_persist_time: 10s
+
+  # Warm standby maintenance
+  standby_refresh_interval: 60s
+  neighbor_scan_interval: 10s
+  neighbor_max_age: 60s
+  standby_replace_hysteresis: 5
+
+  # Optional: triggers OpenThread better-parent search periodically (may switch parents!)
+  parent_search_refresh_interval: 0s

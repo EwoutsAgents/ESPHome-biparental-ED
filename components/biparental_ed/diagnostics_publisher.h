@@ -16,6 +16,16 @@ struct DiagnosticsSnapshot {
   uint16_t active_parent_rloc16{0xffff};
   uint16_t standby_parent_rloc16{0xffff};
   uint32_t failover_count{0};
+
+  // Metrics (Milestone 4)
+  int8_t active_parent_average_rssi{-127};
+  uint8_t active_parent_link_margin{0};
+  uint32_t active_parent_age_ms{0};
+
+  int8_t standby_score{-127};
+  int8_t standby_rssi{-127};
+  uint8_t standby_link_margin{0};
+  uint32_t standby_freshness_ms{0};
 };
 
 class DiagnosticsPublisher {

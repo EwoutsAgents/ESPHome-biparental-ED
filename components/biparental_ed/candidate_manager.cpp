@@ -48,10 +48,23 @@ void CandidateManager::observe_router_neighbor(uint32_t now_ms, uint16_t rloc16,
 }
 
 void CandidateManager::mark_failover_complete(uint32_t now_ms, uint16_t new_active_rloc16) {
+  const uint16_t previous_active_rloc16 = this->active_parent_rloc16_;
   this->active_parent_rloc16_ = new_active_rloc16;
 
   if (this->standby_candidate_.valid && this->standby_candidate_.rloc16 == new_active_rloc16) {
     this->standby_candidate_.valid = false;
+    this->standby_candidate_.last_refresh_ms = now_ms;
+  }
+
+  // Best-effort standby continuity: when active parent changes, keep the previous active
+  // as a standby candidate so preferred failover has a concrete target.
+  if (previous_active_rloc16 != 0xffff && previous_active_rloc16 != 0xfffe &&
+      previous_active_rloc16 != new_active_rloc16) {
+    this->standby_candidate_.valid = true;
+    this->standby_candidate_.rloc16 = previous_active_rloc16;
+    this->standby_candidate_.link_margin = 0;
+    this->standby_candidate_.rssi = -127;
+    this->standby_candidate_.score = compute_score_(this->standby_candidate_.link_margin, this->standby_candidate_.rssi);
     this->standby_candidate_.last_refresh_ms = now_ms;
   }
 }

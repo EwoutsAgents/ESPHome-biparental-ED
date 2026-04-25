@@ -1,0 +1,36 @@
+substitutions:
+  devicename: ot-router
+  friendly: "OT Router"
+
+esphome:
+  name: ${devicename}
+  friendly_name: ${friendly}
+
+esp32:
+  board: esp32-c6-devkitc-1
+  framework:
+    type: esp-idf
+    log_level: INFO
+
+logger:
+  level: DEBUG
+  hardware_uart: UART0
+  deassert_rts_dtr: true
+
+network:
+  enable_ipv6: true
+
+mdns:
+  id: mdns_comp
+
+openthread:
+  mdns_id: mdns_comp
+  device_type: FTD
+  force_dataset: true
+  channel: 15
+  pan_id: 0x1234
+  ext_pan_id: 0x1111111122222222
+  network_name: biparental-test
+  network_key: 0x10112233445566778899AABBCCDDEEFF
+  pskc: 0x112233445566778899AABBCCDDEEFF00
+  mesh_local_prefix: "fd11:22:33:44::/64"

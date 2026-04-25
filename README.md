@@ -160,6 +160,18 @@ Example YAML:
 
 ---
 
+## Documentation
+
+- Complete reference: [`docs/complete-documentation.md`](docs/complete-documentation.md)
+- Milestone notes:
+  - [`docs/milestone-1-architecture-freeze.md`](docs/milestone-1-architecture-freeze.md)
+  - [`docs/milestone-2-protocol-feasibility.md`](docs/milestone-2-protocol-feasibility.md)
+  - [`docs/milestone-3-external-component-design.md`](docs/milestone-3-external-component-design.md)
+  - [`docs/milestone-4-warm-standby.md`](docs/milestone-4-warm-standby.md)
+  - [`docs/milestone-5-handoff.md`](docs/milestone-5-handoff.md)
+  - [`docs/milestone-6-observability.md`](docs/milestone-6-observability.md)
+  - [`docs/milestone-7-hardware-validation.md`](docs/milestone-7-hardware-validation.md)
+
 ## Roadmap
 
 - **Milestone 5:** Deterministic preferred failover outcome handling + fallback policy (**implemented and hardware-validated**)

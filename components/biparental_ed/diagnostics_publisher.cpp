@@ -8,6 +8,20 @@ namespace biparental_ed {
 
 static const char *const TAG = "biparental_ed.diag";
 
+static const char *preferred_outcome_to_cstr(PreferredReattachOutcome outcome) {
+  switch (outcome) {
+    case PreferredReattachOutcome::SUCCESS:
+      return "success";
+    case PreferredReattachOutcome::MISS:
+      return "miss";
+    case PreferredReattachOutcome::TIMEOUT:
+      return "timeout";
+    case PreferredReattachOutcome::NONE:
+    default:
+      return "none";
+  }
+}
+
 void DiagnosticsPublisher::publish(const DiagnosticsSnapshot &snapshot) {
   if (!this->verbose_) {
     return;
@@ -20,7 +34,7 @@ void DiagnosticsPublisher::publish(const DiagnosticsSnapshot &snapshot) {
   }
 
   ESP_LOGD(TAG,
-           "state=%u health=%u reason=%u standby=%s active=0x%04x (rssi=%d lm=%u age=%ums) standby=0x%04x (score=%d rssi=%d lm=%u fresh=%ums) failovers=%u preferred(a/s/m)=%u/%u/%u",
+           "state=%u health=%u reason=%u standby=%s active=0x%04x (rssi=%d lm=%u age=%ums) standby=0x%04x (score=%d rssi=%d lm=%u fresh=%ums) failovers=%u preferred(a/s/m)=%u/%u/%u preferred(target=0x%04x attached=0x%04x outcome=%s result_state=%u)",
            static_cast<unsigned>(snapshot.failover_state), static_cast<unsigned>(snapshot.health_state),
            static_cast<unsigned>(snapshot.fail_reason), snapshot.standby_valid ? "yes" : "no",
            snapshot.active_parent_rloc16, snapshot.active_parent_average_rssi,
@@ -32,7 +46,11 @@ void DiagnosticsPublisher::publish(const DiagnosticsSnapshot &snapshot) {
            static_cast<unsigned>(snapshot.failover_count),
            static_cast<unsigned>(snapshot.preferred_attempt_count),
            static_cast<unsigned>(snapshot.preferred_success_count),
-           static_cast<unsigned>(snapshot.preferred_miss_count));
+           static_cast<unsigned>(snapshot.preferred_miss_count),
+           snapshot.preferred_target_rloc16,
+           snapshot.preferred_attached_parent_rloc16,
+           preferred_outcome_to_cstr(snapshot.preferred_outcome),
+           static_cast<unsigned>(snapshot.preferred_result_state));
 
   this->last_snapshot_ = snapshot;
   this->has_last_snapshot_ = true;
@@ -54,6 +72,10 @@ bool DiagnosticsPublisher::changed_(const DiagnosticsSnapshot &snapshot) const {
          this->last_snapshot_.preferred_attempt_count != snapshot.preferred_attempt_count ||
          this->last_snapshot_.preferred_success_count != snapshot.preferred_success_count ||
          this->last_snapshot_.preferred_miss_count != snapshot.preferred_miss_count ||
+         this->last_snapshot_.preferred_target_rloc16 != snapshot.preferred_target_rloc16 ||
+         this->last_snapshot_.preferred_attached_parent_rloc16 != snapshot.preferred_attached_parent_rloc16 ||
+         this->last_snapshot_.preferred_outcome != snapshot.preferred_outcome ||
+         this->last_snapshot_.preferred_result_state != snapshot.preferred_result_state ||
          this->last_snapshot_.active_parent_average_rssi != snapshot.active_parent_average_rssi ||
          this->last_snapshot_.active_parent_link_margin != snapshot.active_parent_link_margin ||
          this->last_snapshot_.active_parent_age_ms != snapshot.active_parent_age_ms ||

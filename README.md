@@ -113,7 +113,7 @@ Example YAML:
 
 - [`examples/milestone-4-warm-standby.yaml`](examples/milestone-4-warm-standby.yaml)
 
-Milestone 5 handoff/start-here:
+Milestone 5 deterministic preferred-outcome policy:
 
 - [`docs/milestone-5-handoff.md`](docs/milestone-5-handoff.md)
 
@@ -121,7 +121,7 @@ Milestone 5 handoff/start-here:
 
 ## Roadmap
 
-- **Milestone 5:** Deterministic preferred failover control + accelerated reattachment policy
+- **Milestone 5:** Deterministic preferred failover outcome handling + fallback policy (**implemented in code; hardware validation pending**)
 - **Milestone 6:** ESPHome integration + observability
 - **Milestone 7:** ESP32-C6 hardware validation
 - **Milestone 8:** Optimization + robustness

@@ -13,6 +13,34 @@ namespace biparental_ed {
 
 static const char *const TAG = "biparental_ed";
 
+static const char *preferred_outcome_to_cstr(PreferredReattachOutcome outcome) {
+  switch (outcome) {
+    case PreferredReattachOutcome::SUCCESS:
+      return "success";
+    case PreferredReattachOutcome::MISS:
+      return "miss";
+    case PreferredReattachOutcome::TIMEOUT:
+      return "timeout";
+    case PreferredReattachOutcome::NONE:
+    default:
+      return "none";
+  }
+}
+
+static const char *action_reason_to_cstr(FailoverActionReason reason) {
+  switch (reason) {
+    case FailoverActionReason::NO_STANDBY_AVAILABLE:
+      return "no_standby";
+    case FailoverActionReason::PREFERRED_MISS:
+      return "preferred_miss";
+    case FailoverActionReason::PREFERRED_TIMEOUT:
+      return "preferred_timeout";
+    case FailoverActionReason::NONE:
+    default:
+      return "none";
+  }
+}
+
 void BiparentalEDComponent::setup() {
   this->apply_runtime_configuration_();
 
@@ -64,6 +92,9 @@ void BiparentalEDComponent::update() {
   const bool standby_available = this->candidate_manager_.get_standby(now_ms, &standby);
 
   const bool attached_as_child = this->ot_adapter_->is_attached_as_child();
+  const uint16_t attached_parent_rloc16_for_policy =
+      (metrics.valid && metrics.parent_rloc16 != 0xffff && metrics.parent_rloc16 != 0xfffe) ? metrics.parent_rloc16 : 0xffff;
+  const uint16_t standby_parent_rloc16_for_policy = standby_available ? standby.rloc16 : 0xffff;
 
   static uint32_t last_update_debug_ms = 0;
   if ((now_ms - last_update_debug_ms) >= 5000) {
@@ -112,8 +143,11 @@ void BiparentalEDComponent::update() {
 
   const auto action = this->failover_controller_.evaluate(now_ms, attached_as_child, standby_available,
                                                           this->parent_health_monitor_.is_failed(),
-                                                          this->parent_health_monitor_.is_degraded());
+                                                          this->parent_health_monitor_.is_degraded(),
+                                                          attached_parent_rloc16_for_policy,
+                                                          standby_parent_rloc16_for_policy);
 
+  this->maybe_log_preferred_outcome_();
   this->maybe_issue_failover_action_(now_ms, action, standby, standby_available);
   this->publish_diagnostics_(metrics, standby_available, standby);
 }
@@ -211,8 +245,9 @@ void BiparentalEDComponent::maybe_issue_failover_action_(uint32_t now_ms, const 
   }
 
   if (action.type == FailoverActionType::TRIGGER_PREFERRED_REATTACH && standby_available) {
-    ESP_LOGW(TAG, "Requesting preferred failover to standby parent rloc=0x%04x", standby.rloc16);
-    if (!this->ot_adapter_->request_failover_to_preferred(standby.rloc16)) {
+    const uint16_t target_rloc16 = action.preferred_target_rloc16 != 0xffff ? action.preferred_target_rloc16 : standby.rloc16;
+    ESP_LOGW(TAG, "Requesting preferred failover (target=0x%04x)", target_rloc16);
+    if (!this->ot_adapter_->request_failover_to_preferred(target_rloc16)) {
       ESP_LOGW(TAG, "Preferred failover request not yet implemented in OT adapter, falling back to generic flow");
       this->ot_adapter_->request_failover_generic();
     }
@@ -220,9 +255,32 @@ void BiparentalEDComponent::maybe_issue_failover_action_(uint32_t now_ms, const 
   }
 
   if (action.type == FailoverActionType::TRIGGER_GENERIC_REATTACH) {
-    ESP_LOGW(TAG, "Requesting generic reattach/failover");
+    if (action.reason == FailoverActionReason::PREFERRED_MISS || action.reason == FailoverActionReason::PREFERRED_TIMEOUT) {
+      ESP_LOGW(TAG,
+               "Preferred outcome=%s target=0x%04x attached=0x%04x -> action=generic_reattach",
+               action.reason == FailoverActionReason::PREFERRED_MISS ? "miss" : "timeout",
+               action.preferred_target_rloc16,
+               action.attached_parent_rloc16);
+    } else {
+      ESP_LOGW(TAG, "Requesting generic reattach/failover (reason=%s)", action_reason_to_cstr(action.reason));
+    }
     this->ot_adapter_->request_failover_generic();
   }
+}
+
+void BiparentalEDComponent::maybe_log_preferred_outcome_() {
+  const uint32_t event_count = this->failover_controller_.preferred_outcome_event_count();
+  if (event_count == 0 || event_count == this->last_logged_preferred_outcome_event_count_) {
+    return;
+  }
+
+  this->last_logged_preferred_outcome_event_count_ = event_count;
+  ESP_LOGI(TAG,
+           "Preferred outcome=%s target=0x%04x attached=0x%04x -> result_state=%u",
+           preferred_outcome_to_cstr(this->failover_controller_.preferred_last_outcome()),
+           this->failover_controller_.preferred_last_target_rloc16(),
+           this->failover_controller_.preferred_last_attached_parent_rloc16(),
+           static_cast<unsigned>(this->failover_controller_.preferred_last_result_state()));
 }
 
 void BiparentalEDComponent::publish_diagnostics_(const ParentMetrics &metrics, bool standby_available,
@@ -238,6 +296,10 @@ void BiparentalEDComponent::publish_diagnostics_(const ParentMetrics &metrics, b
   snapshot.preferred_attempt_count = this->failover_controller_.preferred_attempt_count();
   snapshot.preferred_success_count = this->failover_controller_.preferred_success_count();
   snapshot.preferred_miss_count = this->failover_controller_.preferred_miss_count();
+  snapshot.preferred_target_rloc16 = this->failover_controller_.preferred_last_target_rloc16();
+  snapshot.preferred_attached_parent_rloc16 = this->failover_controller_.preferred_last_attached_parent_rloc16();
+  snapshot.preferred_outcome = this->failover_controller_.preferred_last_outcome();
+  snapshot.preferred_result_state = this->failover_controller_.preferred_last_result_state();
 
   snapshot.active_parent_average_rssi = metrics.valid ? metrics.average_rssi : -127;
   snapshot.active_parent_link_margin = metrics.valid ? metrics.parent_link_margin : 0;

@@ -23,8 +23,25 @@ enum class FailoverActionType : uint8_t {
   TRIGGER_GENERIC_REATTACH = 2,
 };
 
+enum class FailoverActionReason : uint8_t {
+  NONE = 0,
+  NO_STANDBY_AVAILABLE = 1,
+  PREFERRED_MISS = 2,
+  PREFERRED_TIMEOUT = 3,
+};
+
+enum class PreferredReattachOutcome : uint8_t {
+  NONE = 0,
+  SUCCESS = 1,
+  MISS = 2,
+  TIMEOUT = 3,
+};
+
 struct FailoverAction {
   FailoverActionType type{FailoverActionType::NONE};
+  FailoverActionReason reason{FailoverActionReason::NONE};
+  uint16_t preferred_target_rloc16{0xffff};
+  uint16_t attached_parent_rloc16{0xffff};
 };
 
 class FailoverController {
@@ -35,16 +52,24 @@ class FailoverController {
   void set_preferred_reattach_timeout_ms(uint32_t value) { this->preferred_reattach_timeout_ms_ = value; }
 
   FailoverAction evaluate(uint32_t now_ms, bool attached_as_child, bool standby_available, bool health_failed,
-                          bool health_degraded);
+                          bool health_degraded, uint16_t attached_parent_rloc16, uint16_t standby_parent_rloc16);
 
   FailoverState state() const { return this->state_; }
   uint32_t failover_count() const { return this->failover_count_; }
   uint32_t preferred_attempt_count() const { return this->preferred_attempt_count_; }
   uint32_t preferred_success_count() const { return this->preferred_success_count_; }
   uint32_t preferred_miss_count() const { return this->preferred_miss_count_; }
+  uint16_t preferred_current_target_rloc16() const { return this->preferred_current_target_rloc16_; }
+  uint16_t preferred_last_target_rloc16() const { return this->preferred_last_target_rloc16_; }
+  uint16_t preferred_last_attached_parent_rloc16() const { return this->preferred_last_attached_parent_rloc16_; }
+  PreferredReattachOutcome preferred_last_outcome() const { return this->preferred_last_outcome_; }
+  FailoverState preferred_last_result_state() const { return this->preferred_last_result_state_; }
+  uint32_t preferred_outcome_event_count() const { return this->preferred_outcome_event_count_; }
 
  private:
   void transition_(FailoverState next_state, uint32_t now_ms);
+  void record_preferred_outcome_(PreferredReattachOutcome outcome, uint16_t target_rloc16,
+                                 uint16_t attached_parent_rloc16, FailoverState result_state);
   bool hold_down_expired_(uint32_t now_ms) const;
 
   FailoverState state_{FailoverState::BOOTSTRAP};
@@ -55,6 +80,12 @@ class FailoverController {
   uint32_t preferred_attempt_count_{0};
   uint32_t preferred_success_count_{0};
   uint32_t preferred_miss_count_{0};
+  uint16_t preferred_current_target_rloc16_{0xffff};
+  uint16_t preferred_last_target_rloc16_{0xffff};
+  uint16_t preferred_last_attached_parent_rloc16_{0xffff};
+  PreferredReattachOutcome preferred_last_outcome_{PreferredReattachOutcome::NONE};
+  FailoverState preferred_last_result_state_{FailoverState::BOOTSTRAP};
+  uint32_t preferred_outcome_event_count_{0};
 
   uint32_t hold_down_time_ms_{30000};
   uint32_t failover_eligible_delay_ms_{10000};

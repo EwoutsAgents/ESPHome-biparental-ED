@@ -38,6 +38,7 @@ class BiparentalEDComponent : public PollingComponent {
   void apply_runtime_configuration_();
   void maybe_scan_neighbors_(uint32_t now_ms);
   void maybe_trigger_parent_search_refresh_(uint32_t now_ms);
+  void maybe_log_preferred_outcome_();
   void maybe_issue_failover_action_(uint32_t now_ms, const FailoverAction &action, const ParentCandidate &standby,
                                     bool standby_available);
   void publish_diagnostics_(const ParentMetrics &metrics, bool standby_available, const ParentCandidate &standby);
@@ -62,6 +63,7 @@ class BiparentalEDComponent : public PollingComponent {
 
   uint32_t last_neighbor_scan_ms_{0};
   uint32_t last_parent_search_ms_{0};
+  uint32_t last_logged_preferred_outcome_event_count_{0};
 
   ParentHealthMonitor parent_health_monitor_{};
   CandidateManager candidate_manager_{};

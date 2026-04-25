@@ -19,6 +19,10 @@ struct DiagnosticsSnapshot {
   uint32_t preferred_attempt_count{0};
   uint32_t preferred_success_count{0};
   uint32_t preferred_miss_count{0};
+  uint16_t preferred_target_rloc16{0xffff};
+  uint16_t preferred_attached_parent_rloc16{0xffff};
+  PreferredReattachOutcome preferred_outcome{PreferredReattachOutcome::NONE};
+  FailoverState preferred_result_state{FailoverState::BOOTSTRAP};
 
   // Metrics (Milestone 4)
   int8_t active_parent_average_rssi{-127};

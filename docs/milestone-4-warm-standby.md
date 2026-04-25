@@ -1,66 +1,70 @@
 # Milestone 4 — Warm Standby & Parent Monitoring Implementation
 
-Status: **implemented (v0.1)**
+Status: **completed and hardware-validated (scope complete)**
 
 ## Goal
 
-Implement continuous monitoring and warm-standby maintenance while minimizing overhead.
+Implement continuous parent-health monitoring and warm-standby maintenance with low runtime overhead.
 
-## What is implemented
+## Delivered in Milestone 4
 
 ### Active parent health monitoring
 
-- `EspHomeOpenThreadPlatformAdapter::read_parent_metrics()` reads:
-  - parent RLOC16
-  - parent average RSSI + last RSSI
-  - parent link margin + age (derived from neighbor table)
-- `ParentHealthMonitor` evaluates:
-  - hard failure via `last_parent_rx_ms` (derived from neighbor age)
-  - degraded link via average RSSI threshold + persist time
-  - (control-plane threshold retained in schema; currently kept at 0 due to lack of public counters)
+- `EspHomeOpenThreadPlatformAdapter::read_parent_metrics()` now provides:
+  - parent RLOC16,
+  - parent average/last RSSI,
+  - parent link margin,
+  - parent age (from neighbor table).
+- `ParentHealthMonitor` classifies `HEALTHY` / `DEGRADED` / `FAILED` using:
+  - hard-timeout policy,
+  - degraded-RSSI persist policy,
+  - control-plane threshold config (currently wired but limited by OT public counters).
 
 ### Warm standby candidate maintenance
 
-- Periodic neighbor-table scan (`neighbor_scan_interval`):
-  - iterates router neighbors (excluding parent, excluding children)
-  - applies `neighbor_max_age` filter
-  - feeds candidates into `CandidateManager`
+- Periodic router-neighbor scan (`neighbor_scan_interval`) excluding:
+  - active parent,
+  - child entries.
+- Candidate freshness filtering (`neighbor_max_age`).
+- Candidate ranking with hysteresis (`standby_replace_hysteresis`).
+- Standby staleness lifecycle (`standby_refresh_interval`).
+- Continuity fallback: on active-parent change, previous active parent is promoted to standby candidate (`CandidateManager::mark_failover_complete()`).
 
-- Candidate scoring/ranking:
-  - stable, cheap heuristic score from link margin + RSSI
-  - hysteresis (`standby_replace_hysteresis`) avoids oscillation
-  - freshness tracked via `standby_refresh_interval`
+### Failover integration wiring
 
-### Optional parent-search refresh
+- Generic and preferred failover requests are wired through OT adapter calls.
+- Preferred path remains best-effort (Thread/OpenThread parent selection behavior).
 
-- `parent_search_refresh_interval` (disabled by default) calls:
-  - `otThreadSearchForBetterParent()`
+### Diagnostics / observability
 
-**Important:** OpenThread may automatically switch parents when this is invoked. This is an opt-in knob.
+`DiagnosticsPublisher` includes:
+- failover/health state,
+- active + standby RLOCs,
+- active RSSI/link-margin/age,
+- standby score/RSSI/link-margin/freshness,
+- failover counters,
+- preferred-failover counters (`attempt/success/miss`).
 
-## Metrics / observability
+## Hardware validation summary
 
-Milestone 4 extends log-based diagnostics to include:
+Validation log: `/tmp/biparental-ed-validation-8.log`
 
-- Active parent quality:
-  - average RSSI
-  - link margin
-  - age since last heard
-- Standby candidate quality:
-  - score
-  - RSSI
-  - link margin
-- Standby freshness:
-  - milliseconds since last candidate refresh
+Observed during disruption tests:
+- standby acquisition became valid (`standby=yes` with active/standby RLOCs),
+- preferred failover path issued and accepted,
+- reattach transitions observed with failover counter progression.
 
-These are emitted by `DiagnosticsPublisher` only when values change.
+## Milestone 4 scope boundary
 
-## Configuration keys (new in Milestone 4)
+Milestone 4 is complete for:
+- monitoring,
+- standby maintenance,
+- runtime diagnostics,
+- baseline failover actuation plumbing.
 
-- `neighbor_scan_interval` (time, default `10s`, set `0s` to disable)
-- `neighbor_max_age` (time, default `60s`)
-- `parent_search_refresh_interval` (time, default `0s`/disabled)
+Milestone 5 is still required for deterministic preferred-target outcome control (policy/behavior beyond best-effort request issuance).
 
-## Example
+## Next document
 
-See: `examples/milestone-4-warm-standby.yaml`
+For immediate continuation, use:
+- [`docs/milestone-5-handoff.md`](milestone-5-handoff.md)

@@ -38,6 +38,7 @@ struct DiagnosticsSnapshot {
 class DiagnosticsPublisher {
  public:
   void set_verbose(bool value) { this->verbose_ = value; }
+  void set_periodic_publish_ms(uint32_t value) { this->periodic_publish_ms_ = value; }
   void publish(const DiagnosticsSnapshot &snapshot);
 
  private:

@@ -1,6 +1,11 @@
 #pragma once
 
 #include "esphome/core/component.h"
+#include "esphome/components/binary_sensor/binary_sensor.h"
+#include "esphome/components/sensor/sensor.h"
+#include "esphome/components/text_sensor/text_sensor.h"
+
+#include <string>
 
 #include "candidate_manager.h"
 #include "diagnostics_publisher.h"
@@ -33,6 +38,16 @@ class BiparentalEDComponent : public PollingComponent {
   void set_neighbor_scan_interval_ms(uint32_t value) { this->neighbor_scan_interval_ms_ = value; }
   void set_neighbor_max_age_ms(uint32_t value) { this->neighbor_max_age_ms_ = value; }
   void set_parent_search_refresh_interval_ms(uint32_t value) { this->parent_search_refresh_interval_ms_ = value; }
+  void set_runtime_debug_enabled(bool value) { this->runtime_debug_enabled_ = value; }
+  void set_runtime_debug_interval_ms(uint32_t value) { this->runtime_debug_interval_ms_ = value; }
+  void set_verbose_diagnostics(bool value) { this->verbose_diagnostics_ = value; }
+  void set_diagnostics_publish_interval_ms(uint32_t value) { this->diagnostics_publish_interval_ms_ = value; }
+
+  void set_active_parent_id_text_sensor(text_sensor::TextSensor *sensor) { this->active_parent_id_text_sensor_ = sensor; }
+  void set_standby_parent_id_text_sensor(text_sensor::TextSensor *sensor) { this->standby_parent_id_text_sensor_ = sensor; }
+  void set_failover_count_sensor(sensor::Sensor *sensor) { this->failover_count_sensor_ = sensor; }
+  void set_degraded_state_binary_sensor(binary_sensor::BinarySensor *sensor) { this->degraded_state_binary_sensor_ = sensor; }
+  void set_last_failover_reason_text_sensor(text_sensor::TextSensor *sensor) { this->last_failover_reason_text_sensor_ = sensor; }
 
  protected:
   void apply_runtime_configuration_();
@@ -64,6 +79,17 @@ class BiparentalEDComponent : public PollingComponent {
   uint32_t last_neighbor_scan_ms_{0};
   uint32_t last_parent_search_ms_{0};
   uint32_t last_logged_preferred_outcome_event_count_{0};
+  bool runtime_debug_enabled_{true};
+  uint32_t runtime_debug_interval_ms_{5000};
+  bool verbose_diagnostics_{true};
+  uint32_t diagnostics_publish_interval_ms_{5000};
+
+  text_sensor::TextSensor *active_parent_id_text_sensor_{nullptr};
+  text_sensor::TextSensor *standby_parent_id_text_sensor_{nullptr};
+  sensor::Sensor *failover_count_sensor_{nullptr};
+  binary_sensor::BinarySensor *degraded_state_binary_sensor_{nullptr};
+  text_sensor::TextSensor *last_failover_reason_text_sensor_{nullptr};
+  std::string last_failover_reason_{"none"};
 
   ParentHealthMonitor parent_health_monitor_{};
   CandidateManager candidate_manager_{};

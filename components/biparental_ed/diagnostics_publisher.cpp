@@ -78,11 +78,9 @@ bool DiagnosticsPublisher::changed_(const DiagnosticsSnapshot &snapshot) const {
          this->last_snapshot_.preferred_result_state != snapshot.preferred_result_state ||
          this->last_snapshot_.active_parent_average_rssi != snapshot.active_parent_average_rssi ||
          this->last_snapshot_.active_parent_link_margin != snapshot.active_parent_link_margin ||
-         this->last_snapshot_.active_parent_age_ms != snapshot.active_parent_age_ms ||
          this->last_snapshot_.standby_score != snapshot.standby_score ||
          this->last_snapshot_.standby_rssi != snapshot.standby_rssi ||
-         this->last_snapshot_.standby_link_margin != snapshot.standby_link_margin ||
-         this->last_snapshot_.standby_freshness_ms != snapshot.standby_freshness_ms;
+         this->last_snapshot_.standby_link_margin != snapshot.standby_link_margin;
 }
 
 }  // namespace biparental_ed

@@ -3,6 +3,8 @@
 #include "esphome/core/hal.h"
 #include "esphome/core/log.h"
 
+#include <cstdio>
+
 #ifdef USE_OPENTHREAD
 #include "esphome/components/openthread/openthread.h"
 #include <openthread/thread.h>
@@ -41,8 +43,32 @@ static const char *action_reason_to_cstr(FailoverActionReason reason) {
   }
 }
 
+static const char *fail_reason_to_cstr(ParentFailReason reason) {
+  switch (reason) {
+    case ParentFailReason::HARD_TIMEOUT:
+      return "hard_timeout";
+    case ParentFailReason::LINK_DEGRADED:
+      return "link_degraded";
+    case ParentFailReason::CONTROL_PLANE:
+      return "control_plane";
+    case ParentFailReason::NONE:
+    default:
+      return "none";
+  }
+}
+
+static void format_rloc16(char *buffer, size_t buffer_size, uint16_t rloc16) {
+  if (rloc16 == 0xffff || rloc16 == 0xfffe) {
+    snprintf(buffer, buffer_size, "unknown");
+    return;
+  }
+  snprintf(buffer, buffer_size, "0x%04X", rloc16);
+}
+
 void BiparentalEDComponent::setup() {
   this->apply_runtime_configuration_();
+  this->diagnostics_publisher_.set_verbose(this->verbose_diagnostics_);
+  this->diagnostics_publisher_.set_periodic_publish_ms(this->diagnostics_publish_interval_ms_);
 
 #ifdef USE_OPENTHREAD
   // If OpenThread is configured in the user's YAML, ESPHome will set USE_OPENTHREAD and expose
@@ -97,7 +123,8 @@ void BiparentalEDComponent::update() {
   const uint16_t standby_parent_rloc16_for_policy = standby_available ? standby.rloc16 : 0xffff;
 
   static uint32_t last_update_debug_ms = 0;
-  if ((now_ms - last_update_debug_ms) >= 5000) {
+  if (this->runtime_debug_enabled_ &&
+      (last_update_debug_ms == 0 || (now_ms - last_update_debug_ms) >= this->runtime_debug_interval_ms_)) {
 #ifdef USE_OPENTHREAD
     const bool ot_present = esphome::openthread::global_openthread_component != nullptr;
     const bool ot_lock_initialized = ot_present && esphome::openthread::global_openthread_component->is_lock_initialized();
@@ -174,6 +201,11 @@ void BiparentalEDComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "  neighbor_max_age_ms: %u", static_cast<unsigned>(this->neighbor_max_age_ms_));
   ESP_LOGCONFIG(TAG, "  parent_search_refresh_interval_ms: %u",
                 static_cast<unsigned>(this->parent_search_refresh_interval_ms_));
+  ESP_LOGCONFIG(TAG, "  runtime_debug_enabled: %s", this->runtime_debug_enabled_ ? "true" : "false");
+  ESP_LOGCONFIG(TAG, "  runtime_debug_interval_ms: %u", static_cast<unsigned>(this->runtime_debug_interval_ms_));
+  ESP_LOGCONFIG(TAG, "  verbose_diagnostics: %s", this->verbose_diagnostics_ ? "true" : "false");
+  ESP_LOGCONFIG(TAG, "  diagnostics_publish_interval_ms: %u",
+                static_cast<unsigned>(this->diagnostics_publish_interval_ms_));
 }
 
 void BiparentalEDComponent::apply_runtime_configuration_() {
@@ -244,6 +276,13 @@ void BiparentalEDComponent::maybe_issue_failover_action_(uint32_t now_ms, const 
     return;
   }
 
+  if (action.reason == FailoverActionReason::PREFERRED_MISS || action.reason == FailoverActionReason::PREFERRED_TIMEOUT ||
+      action.reason == FailoverActionReason::NO_STANDBY_AVAILABLE) {
+    this->last_failover_reason_ = action_reason_to_cstr(action.reason);
+  } else {
+    this->last_failover_reason_ = fail_reason_to_cstr(this->parent_health_monitor_.fail_reason());
+  }
+
   if (action.type == FailoverActionType::TRIGGER_PREFERRED_REATTACH && standby_available) {
     const uint16_t target_rloc16 = action.preferred_target_rloc16 != 0xffff ? action.preferred_target_rloc16 : standby.rloc16;
     ESP_LOGW(TAG, "Requesting preferred failover (target=0x%04x)", target_rloc16);
@@ -285,6 +324,31 @@ void BiparentalEDComponent::maybe_log_preferred_outcome_() {
 
 void BiparentalEDComponent::publish_diagnostics_(const ParentMetrics &metrics, bool standby_available,
                                                  const ParentCandidate &standby) {
+  char active_parent_id[16];
+  format_rloc16(active_parent_id, sizeof(active_parent_id),
+                metrics.valid ? metrics.parent_rloc16 : this->candidate_manager_.active_parent_rloc16());
+  if (this->active_parent_id_text_sensor_ != nullptr) {
+    this->active_parent_id_text_sensor_->publish_state(active_parent_id);
+  }
+
+  char standby_parent_id[16];
+  format_rloc16(standby_parent_id, sizeof(standby_parent_id), standby_available ? standby.rloc16 : 0xffff);
+  if (this->standby_parent_id_text_sensor_ != nullptr) {
+    this->standby_parent_id_text_sensor_->publish_state(standby_parent_id);
+  }
+
+  if (this->failover_count_sensor_ != nullptr) {
+    this->failover_count_sensor_->publish_state(this->failover_controller_.failover_count());
+  }
+
+  if (this->degraded_state_binary_sensor_ != nullptr) {
+    this->degraded_state_binary_sensor_->publish_state(this->parent_health_monitor_.is_degraded());
+  }
+
+  if (this->last_failover_reason_text_sensor_ != nullptr) {
+    this->last_failover_reason_text_sensor_->publish_state(this->last_failover_reason_);
+  }
+
   DiagnosticsSnapshot snapshot{};
   snapshot.failover_state = this->failover_controller_.state();
   snapshot.health_state = this->parent_health_monitor_.state();

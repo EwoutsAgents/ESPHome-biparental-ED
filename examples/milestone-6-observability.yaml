@@ -1,0 +1,70 @@
+esphome:
+  name: biparental-ed-m6
+  friendly_name: Biparental ED Milestone 6 Observability
+
+esp32:
+  board: esp32-c6-devkitc-1
+  framework:
+    type: esp-idf
+
+logger:
+  level: DEBUG
+
+network:
+  enable_ipv6: true
+
+mdns:
+  id: mdns_comp
+
+openthread:
+  mdns_id: mdns_comp
+  device_type: FTD
+  # Dataset TLV (example placeholder). Must be a valid dataset for real hardware tests.
+  tlv: "0e080000000000010000000300000000"
+
+external_components:
+  - source:
+      type: local
+      path: ../components
+    components: [biparental_ed]
+
+biparental_ed:
+  id: biparental_controller
+  update_interval: 1s
+
+  # Health policy
+  degraded_rssi_threshold: -72
+  hard_failure_timeout: 15s
+  degrade_persist_time: 10s
+  control_plane_error_threshold: 3
+
+  # Failover policy
+  hold_down_time: 30s
+  failover_eligible_delay: 10s
+  post_failover_stabilize_time: 10s
+  preferred_reattach_timeout: 5s
+  enable_parent_response_callback: true
+
+  # Warm standby maintenance
+  standby_refresh_interval: 60s
+  neighbor_scan_interval: 10s
+  neighbor_max_age: 60s
+  standby_replace_hysteresis: 5
+  parent_search_refresh_interval: 0s
+
+  # Observability / debugging
+  runtime_debug_enabled: true
+  runtime_debug_interval: 5s
+  verbose_diagnostics: true
+  diagnostics_publish_interval: 5s
+
+  active_parent_id:
+    name: Active Parent ID
+  standby_parent_id:
+    name: Standby Parent ID
+  failover_count:
+    name: Failover Count
+  degraded_state:
+    name: Parent Degraded
+  last_failover_reason:
+    name: Last Failover Reason

@@ -39,6 +39,9 @@ class FailoverController {
 
   FailoverState state() const { return this->state_; }
   uint32_t failover_count() const { return this->failover_count_; }
+  uint32_t preferred_attempt_count() const { return this->preferred_attempt_count_; }
+  uint32_t preferred_success_count() const { return this->preferred_success_count_; }
+  uint32_t preferred_miss_count() const { return this->preferred_miss_count_; }
 
  private:
   void transition_(FailoverState next_state, uint32_t now_ms);
@@ -49,6 +52,9 @@ class FailoverController {
   uint32_t failover_eligible_since_ms_{0};
   uint32_t last_failover_ms_{0};
   uint32_t failover_count_{0};
+  uint32_t preferred_attempt_count_{0};
+  uint32_t preferred_success_count_{0};
+  uint32_t preferred_miss_count_{0};
 
   uint32_t hold_down_time_ms_{30000};
   uint32_t failover_eligible_delay_ms_{10000};

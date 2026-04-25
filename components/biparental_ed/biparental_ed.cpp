@@ -5,6 +5,7 @@
 
 #ifdef USE_OPENTHREAD
 #include "esphome/components/openthread/openthread.h"
+#include <openthread/thread.h>
 #endif
 
 namespace esphome {
@@ -63,6 +64,52 @@ void BiparentalEDComponent::update() {
   const bool standby_available = this->candidate_manager_.get_standby(now_ms, &standby);
 
   const bool attached_as_child = this->ot_adapter_->is_attached_as_child();
+
+  static uint32_t last_update_debug_ms = 0;
+  if ((now_ms - last_update_debug_ms) >= 5000) {
+#ifdef USE_OPENTHREAD
+    const bool ot_present = esphome::openthread::global_openthread_component != nullptr;
+    const bool ot_lock_initialized = ot_present && esphome::openthread::global_openthread_component->is_lock_initialized();
+    const bool ot_connected = ot_present && esphome::openthread::global_openthread_component->is_connected();
+
+    bool ot_lock_acquired = false;
+    int ot_role = -1;
+    int ot_parent_info_err = -1;
+    uint16_t ot_parent_rloc = 0xffff;
+    if (ot_present && ot_lock_initialized) {
+      auto lock = esphome::openthread::InstanceLock::try_acquire(100);
+      if (lock) {
+        ot_lock_acquired = true;
+        otInstance *instance = lock->get_instance();
+        ot_role = static_cast<int>(otThreadGetDeviceRole(instance));
+        otRouterInfo parent_info{};
+        ot_parent_info_err = static_cast<int>(otThreadGetParentInfo(instance, &parent_info));
+        if (ot_parent_info_err == static_cast<int>(OT_ERROR_NONE)) {
+          ot_parent_rloc = parent_info.mRloc16;
+        }
+      }
+    }
+#else
+    const bool ot_present = false;
+    const bool ot_lock_initialized = false;
+    const bool ot_connected = false;
+    const bool ot_lock_acquired = false;
+    const int ot_role = -1;
+    const int ot_parent_info_err = -1;
+    const uint16_t ot_parent_rloc = 0xffff;
+#endif
+
+    ESP_LOGD(TAG,
+             "runtime: got_metrics=%s metrics.valid=%s parent=0x%04x rssi=%d lm=%u age=%ums attached_as_child=%s standby=%s ot_present=%s ot_lock_init=%s ot_connected=%s ot_lock=%s ot_role=%d ot_parent_err=%d ot_parent=0x%04x",
+             got_metrics ? "true" : "false", metrics.valid ? "true" : "false", metrics.parent_rloc16,
+             metrics.average_rssi, static_cast<unsigned>(metrics.parent_link_margin),
+             static_cast<unsigned>(metrics.parent_age_ms), attached_as_child ? "true" : "false",
+             standby_available ? "true" : "false", ot_present ? "true" : "false",
+             ot_lock_initialized ? "true" : "false", ot_connected ? "true" : "false",
+             ot_lock_acquired ? "true" : "false", ot_role, ot_parent_info_err, ot_parent_rloc);
+    last_update_debug_ms = now_ms;
+  }
+
   const auto action = this->failover_controller_.evaluate(now_ms, attached_as_child, standby_available,
                                                           this->parent_health_monitor_.is_failed(),
                                                           this->parent_health_monitor_.is_degraded());
@@ -188,6 +235,9 @@ void BiparentalEDComponent::publish_diagnostics_(const ParentMetrics &metrics, b
   snapshot.active_parent_rloc16 = metrics.valid ? metrics.parent_rloc16 : this->candidate_manager_.active_parent_rloc16();
   snapshot.standby_parent_rloc16 = standby_available ? standby.rloc16 : 0xffff;
   snapshot.failover_count = this->failover_controller_.failover_count();
+  snapshot.preferred_attempt_count = this->failover_controller_.preferred_attempt_count();
+  snapshot.preferred_success_count = this->failover_controller_.preferred_success_count();
+  snapshot.preferred_miss_count = this->failover_controller_.preferred_miss_count();
 
   snapshot.active_parent_average_rssi = metrics.valid ? metrics.average_rssi : -127;
   snapshot.active_parent_link_margin = metrics.valid ? metrics.parent_link_margin : 0;

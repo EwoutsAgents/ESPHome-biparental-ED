@@ -72,6 +72,7 @@ FailoverAction FailoverController::evaluate(uint32_t now_ms, bool attached_as_ch
     case FailoverState::FAILOVER_TRIGGERED:
       if (standby_available) {
         this->transition_(FailoverState::REATTACHING_PREFERRED, now_ms);
+        this->preferred_attempt_count_++;
         action.type = FailoverActionType::TRIGGER_PREFERRED_REATTACH;
       } else {
         this->transition_(FailoverState::REATTACHING_GENERIC, now_ms);
@@ -84,10 +85,12 @@ FailoverAction FailoverController::evaluate(uint32_t now_ms, bool attached_as_ch
         this->transition_(FailoverState::POST_FAILOVER_STABILIZE, now_ms);
         this->last_failover_ms_ = now_ms;
         this->failover_count_++;
+        this->preferred_success_count_++;
         break;
       }
       if ((now_ms - this->state_entered_ms_) >= this->preferred_reattach_timeout_ms_) {
         this->transition_(FailoverState::REATTACHING_GENERIC, now_ms);
+        this->preferred_miss_count_++;
         action.type = FailoverActionType::TRIGGER_GENERIC_REATTACH;
       }
       break;

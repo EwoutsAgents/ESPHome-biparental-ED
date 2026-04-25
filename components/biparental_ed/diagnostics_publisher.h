@@ -16,6 +16,9 @@ struct DiagnosticsSnapshot {
   uint16_t active_parent_rloc16{0xffff};
   uint16_t standby_parent_rloc16{0xffff};
   uint32_t failover_count{0};
+  uint32_t preferred_attempt_count{0};
+  uint32_t preferred_success_count{0};
+  uint32_t preferred_miss_count{0};
 
   // Metrics (Milestone 4)
   int8_t active_parent_average_rssi{-127};
@@ -39,6 +42,8 @@ class DiagnosticsPublisher {
   bool has_last_snapshot_{false};
   DiagnosticsSnapshot last_snapshot_{};
   bool verbose_{true};
+  uint32_t last_publish_ms_{0};
+  uint32_t periodic_publish_ms_{5000};
 };
 
 }  // namespace biparental_ed

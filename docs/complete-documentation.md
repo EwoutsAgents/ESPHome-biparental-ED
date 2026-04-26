@@ -600,6 +600,7 @@ Examples and milestone references:
 - `docs/milestone-5-handoff.md`
 - `docs/milestone-6-observability.md`
 - `docs/milestone-7-hardware-validation.md`
+- `docs/milestone-8-parent-switching-performance.md`
 
 ---
 
@@ -698,3 +699,14 @@ Outcome:
 - Timeout closeout criteria captured on fresh hardware logs:
   - `Preferred outcome=timeout`
   - `entity.last_failover_reason=preferred_timeout`
+
+### Milestone 8 — Parent Switching Performance Comparison (planned, not started)
+
+Deliverable (plan):
+
+- [`docs/milestone-8-parent-switching-performance.md`](docs/milestone-8-parent-switching-performance.md)
+
+Planned outcome:
+
+- Compare parent-switching performance between default Thread behavior and the biparental policy.
+- Produce scenario-based timing/success metrics and recommendation grounded in repeatable trials.

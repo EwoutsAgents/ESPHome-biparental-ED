@@ -603,7 +603,7 @@ Examples and milestone references:
 
 ---
 
-## 11. Milestone history and roadmap (moved from README)
+## 11. Milestone history and roadmap
 
 ### Milestone 1 — Problem Definition & Architecture Freeze (completed)
 
@@ -698,11 +698,3 @@ Outcome:
 - Timeout closeout criteria captured on fresh hardware logs:
   - `Preferred outcome=timeout`
   - `entity.last_failover_reason=preferred_timeout`
-
-### Legacy roadmap snapshot from README
-
-- Milestone 5: Deterministic preferred failover outcome handling + fallback policy (implemented + hardware-validated)
-- Milestone 6: ESPHome integration + observability (implemented; compile-checked + hardware spot-validated cadence)
-- Milestone 7: ESP32-C6 hardware validation
-- Milestone 8: Optimization + robustness
-- Milestone 9: Documentation + release

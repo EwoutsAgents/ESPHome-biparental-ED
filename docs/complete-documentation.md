@@ -600,3 +600,109 @@ Examples and milestone references:
 - `docs/milestone-5-handoff.md`
 - `docs/milestone-6-observability.md`
 - `docs/milestone-7-hardware-validation.md`
+
+---
+
+## 11. Milestone history and roadmap (moved from README)
+
+### Milestone 1 — Problem Definition & Architecture Freeze (completed)
+
+Deliverable:
+
+- [`docs/milestone-1-architecture-freeze.md`](docs/milestone-1-architecture-freeze.md)
+
+Outcome:
+
+- Architecture and behavior definition frozen as active-passive overlay design.
+- Parent selection and failover state machine defined.
+- Failure detection and anti-flap policy defined.
+
+### Milestone 2 — Protocol-Level Feasibility Validation (completed)
+
+Deliverable:
+
+- [`docs/milestone-2-protocol-feasibility.md`](docs/milestone-2-protocol-feasibility.md)
+
+Outcome:
+
+- Confirms feasibility of active-passive warm-standby behavior as an external overlay.
+- Freezes compliance boundaries for what can be implemented without stack modifications.
+- Separates compliant behavior from cases requiring OpenThread internal changes.
+
+### Milestone 3 — ESPHome External Component Design (completed)
+
+Deliverable:
+
+- [`docs/milestone-3-external-component-design.md`](docs/milestone-3-external-component-design.md)
+
+Outcome:
+
+- External component scaffold added under `components/biparental_ed/`.
+- Core internal modules defined (`ParentHealthMonitor`, `CandidateManager`, `FailoverController`, `DiagnosticsPublisher`).
+- Internal failover state machine scaffold implemented.
+- YAML configuration schema and first example added.
+
+### Milestone 4 — Warm Standby & Parent Monitoring (implemented + hardware-validated)
+
+Deliverable:
+
+- [`docs/milestone-4-warm-standby.md`](docs/milestone-4-warm-standby.md)
+
+Outcome:
+
+- Active parent monitoring via OpenThread parent RSSI/info APIs.
+- Warm-standby candidate maintenance via neighbor-table scanning + hysteresis.
+- Log-based metrics for active and standby quality/freshness.
+
+Example YAML:
+
+- [`examples/milestone-4-warm-standby.yaml`](examples/milestone-4-warm-standby.yaml)
+
+### Milestone 5 — Deterministic Preferred-Failover Outcome Handling (implemented + hardware-validated)
+
+Deliverable:
+
+- [`docs/milestone-5-handoff.md`](docs/milestone-5-handoff.md)
+
+Outcome:
+
+- Preferred reattach success/miss/timeout classified deterministically.
+- Miss/timeout force generic fallback with explicit logging/counters.
+- Hardware validation captured success, miss, and timeout behavior on ESP32-C6 boards.
+
+### Milestone 6 — ESPHome Integration + Observability (implemented)
+
+Deliverable:
+
+- [`docs/milestone-6-observability.md`](docs/milestone-6-observability.md)
+
+Outcome:
+
+- Optional diagnostic entities expose active/standby parent IDs, failover count, degraded state, and last failover reason.
+- Runtime debug hooks and diagnostics publish interval are configurable.
+- Milestone 6 example config was added and compile-validated.
+- ESP32-C6 spot-validation confirmed diagnostics cadence after excluding volatile age/freshness from change detection.
+
+Example YAML:
+
+- [`examples/milestone-6-observability.yaml`](examples/milestone-6-observability.yaml)
+
+### Milestone 7 — Hardware Validation Closeout (completed)
+
+Deliverable:
+
+- [`docs/milestone-7-hardware-validation.md`](docs/milestone-7-hardware-validation.md)
+
+Outcome:
+
+- Timeout closeout criteria captured on fresh hardware logs:
+  - `Preferred outcome=timeout`
+  - `entity.last_failover_reason=preferred_timeout`
+
+### Legacy roadmap snapshot from README
+
+- Milestone 5: Deterministic preferred failover outcome handling + fallback policy (implemented + hardware-validated)
+- Milestone 6: ESPHome integration + observability (implemented; compile-checked + hardware spot-validated cadence)
+- Milestone 7: ESP32-C6 hardware validation
+- Milestone 8: Optimization + robustness
+- Milestone 9: Documentation + release

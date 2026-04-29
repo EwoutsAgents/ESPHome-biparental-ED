@@ -1,0 +1,4 @@
+===== /dev/ttyACM2 =====
+[0;36m[D][esp-idf:000][1;31m[ot_main][0;36m: W(355538) OPENTHREAD:[0m
+[0;36m[D][esp-idf:000][1;31m[ot_main][0;36m: [W] Mle-----------: Failed to process Parent Request: Duplicated[0m
+[0;36m[D][esp-idf:000][1;31m[ot_main][0;36m: [0m

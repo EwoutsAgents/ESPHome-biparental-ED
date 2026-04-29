@@ -1,0 +1,9 @@
+substitutions:
+  devicename: ot-router-degrade
+  friendly: "OT Router Degradation Test"
+  # ESP32-C6 OpenThread TX power range in ESPHome: -15dB..20dB.
+  thread_output_power: "8dB"
+
+packages:
+  base: !include hwtest-router.yaml
+  tx_power_degradation: !include tx-power-degradation.yaml

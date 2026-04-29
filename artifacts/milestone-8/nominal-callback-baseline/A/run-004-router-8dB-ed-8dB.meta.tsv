@@ -1,0 +1,9 @@
+variant	A
+scenario	nominal-callback-baseline
+run_id	004
+router_output_power	8dB
+ed_output_power	8dB
+yaml	examples/milestone-8-variant-a-reference-ed.yaml
+duration_seconds	120
+started_utc	2026-04-29T06:11:59Z
+ended_utc	2026-04-29T06:13:59Z

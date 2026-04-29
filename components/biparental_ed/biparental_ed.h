@@ -22,6 +22,8 @@ class BiparentalEDComponent : public PollingComponent {
   void loop() override;
   void update() override;
   void dump_config() override;
+  void observe_parent_response_(uint16_t rloc16, int8_t rssi, uint8_t link_quality_3, uint8_t link_quality_2,
+                                uint8_t link_quality_1, bool is_attached);
 
   void set_degraded_rssi_threshold(int value) { this->degraded_rssi_threshold_ = value; }
   void set_hard_failure_timeout_ms(uint32_t value) { this->hard_failure_timeout_ms_ = value; }
@@ -78,6 +80,7 @@ class BiparentalEDComponent : public PollingComponent {
 
   uint32_t last_neighbor_scan_ms_{0};
   uint32_t last_parent_search_ms_{0};
+  bool parent_response_callback_registered_{false};
   uint32_t last_logged_preferred_outcome_event_count_{0};
   bool runtime_debug_enabled_{true};
   uint32_t runtime_debug_interval_ms_{5000};

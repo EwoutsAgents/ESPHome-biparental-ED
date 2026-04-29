@@ -1,0 +1,16 @@
+substitutions:
+  devicename: m8-biparental-ed-search
+  friendly: "M8 Biparental ED Search Refresh"
+  # ESP32-C6 OpenThread TX power range in ESPHome: -15dB..20dB.
+  thread_output_power: "8dB"
+
+packages:
+  base: !include hwtest-ed.yaml
+  tx_power_degradation: !include tx-power-degradation.yaml
+
+biparental_ed:
+  id: biparental_controller
+  # Give passive neighbor discovery / parent search time to populate standby before
+  # treating no-standby as a failover condition during Milestone 8 setup sanity.
+  hard_failure_timeout: 60s
+  parent_search_refresh_interval: 10s

@@ -15,6 +15,17 @@ namespace biparental_ed {
 
 static const char *const TAG = "biparental_ed";
 
+#ifdef USE_OPENTHREAD
+static void parent_response_callback(otThreadParentResponseInfo *info, void *context) {
+  if (info == nullptr || context == nullptr) {
+    return;
+  }
+  auto *self = static_cast<BiparentalEDComponent *>(context);
+  self->observe_parent_response_(info->mRloc16, info->mRssi, info->mLinkQuality3, info->mLinkQuality2,
+                                 info->mLinkQuality1, info->mIsAttached);
+}
+#endif
+
 static const char *preferred_outcome_to_cstr(PreferredReattachOutcome outcome) {
   switch (outcome) {
     case PreferredReattachOutcome::SUCCESS:
@@ -80,17 +91,35 @@ void BiparentalEDComponent::setup() {
 #endif
 
   if (this->enable_parent_response_callback_) {
-    ESP_LOGD(TAG,
-             "Parent response callback integration requested. "
-             "OpenThread registration will be connected in a runtime adapter.");
+#ifdef USE_OPENTHREAD
+    if (esphome::openthread::global_openthread_component != nullptr &&
+        esphome::openthread::global_openthread_component->is_lock_initialized()) {
+      auto lock = esphome::openthread::InstanceLock::acquire();
+      otThreadRegisterParentResponseCallback(lock.get_instance(), parent_response_callback, this);
+      this->parent_response_callback_registered_ = true;
+      ESP_LOGI(TAG, "Registered OpenThread parent response callback");
+    } else {
+      ESP_LOGD(TAG, "Parent response callback requested; waiting for OpenThread lock");
+    }
+#else
+    ESP_LOGD(TAG, "Parent response callback requested but OpenThread is not enabled");
+#endif
   }
 
   ESP_LOGI(TAG, "Milestone 3 scaffold initialized");
 }
 
 void BiparentalEDComponent::loop() {
-  // Callback-driven integration point for future OpenThread hook registrations.
-  // Milestone 4+ will wire parent response callbacks into CandidateManager.
+#ifdef USE_OPENTHREAD
+  if (this->enable_parent_response_callback_ && !this->parent_response_callback_registered_ &&
+      esphome::openthread::global_openthread_component != nullptr &&
+      esphome::openthread::global_openthread_component->is_lock_initialized()) {
+    auto lock = esphome::openthread::InstanceLock::acquire();
+    otThreadRegisterParentResponseCallback(lock.get_instance(), parent_response_callback, this);
+    this->parent_response_callback_registered_ = true;
+    ESP_LOGI(TAG, "Registered OpenThread parent response callback");
+  }
+#endif
 }
 
 void BiparentalEDComponent::update() {
@@ -236,19 +265,40 @@ void BiparentalEDComponent::maybe_scan_neighbors_(uint32_t now_ms) {
   struct Context {
     BiparentalEDComponent *self;
     uint32_t now_ms;
+    uint8_t seen{0};
+    uint8_t fresh{0};
+    uint8_t stale{0};
   } ctx{this, now_ms};
 
   OpenThreadPlatformAdapter::RouterNeighborCallback cb = [](void *context,
                                                             const OpenThreadPlatformAdapter::RouterNeighborInfo &info) {
     auto *ctx = static_cast<Context *>(context);
+    ctx->seen++;
     if (info.age_ms > ctx->self->neighbor_max_age_ms_) {
+      ctx->stale++;
       return;
     }
+    ctx->fresh++;
     ctx->self->candidate_manager_.observe_router_neighbor(ctx->now_ms, info.rloc16, static_cast<int8_t>(info.link_margin),
                                                           info.average_rssi);
   };
 
   (void) this->ot_adapter_->read_router_neighbors(cb, &ctx);
+}
+
+void BiparentalEDComponent::observe_parent_response_(uint16_t rloc16, int8_t rssi, uint8_t link_quality_3,
+                                                     uint8_t link_quality_2, uint8_t link_quality_1,
+                                                     bool is_attached) {
+  if (rloc16 == 0xffff || rloc16 == 0xfffe) {
+    return;
+  }
+
+  // Parent Response only exposes RSSI and link-quality counters, not an OT link-margin value.
+  // Convert the counters to a conservative 0..30-ish margin proxy so CandidateManager can rank
+  // callback-derived candidates without depending on the MTD neighbor table.
+  const uint8_t link_margin = static_cast<uint8_t>((link_quality_3 * 10U) + (link_quality_2 * 6U) +
+                                                  (link_quality_1 * 3U));
+  this->candidate_manager_.observe_parent_response(millis(), rloc16, static_cast<int8_t>(link_margin), rssi);
 }
 
 void BiparentalEDComponent::maybe_trigger_parent_search_refresh_(uint32_t now_ms) {

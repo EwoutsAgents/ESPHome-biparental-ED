@@ -174,9 +174,11 @@ That means:
 
 `parent_search_refresh_interval` is explicitly opt-in because the code warns that `otThreadSearchForBetterParent()` may cause an automatic parent switch.
 
-### Parent-response callback is not yet runtime-wired
+### Parent-response callback is now runtime-wired
 
-The YAML option `enable_parent_response_callback` exists, and setup logs that callback integration was requested, but the component `loop()` still describes this as a future integration point. Current standby discovery is therefore not dependent on a live registered parent-response callback.
+When `enable_parent_response_callback: true` is set and the OpenThread lock becomes available, the component now registers `otThreadRegisterParentResponseCallback()` and feeds callback-derived observations into `CandidateManager`.
+
+This matters for the MED/MTD Milestone 8 hardware path because alternate parents were not exposed reliably enough through `otThreadGetNextNeighborInfo()` alone. Standby discovery for the current comparison path therefore depends on the live parent-response callback integration.
 
 ### Control-plane degradation is only partially realized
 
@@ -700,13 +702,15 @@ Outcome:
   - `Preferred outcome=timeout`
   - `entity.last_failover_reason=preferred_timeout`
 
-### Milestone 8 — Parent Switching Performance Comparison (planned, not started)
+### Milestone 8 — Parent Switching Performance Comparison (completed, negative result)
 
-Deliverable (plan):
+Deliverable:
 
 - [`docs/milestone-8-parent-switching-performance.md`](docs/milestone-8-parent-switching-performance.md)
 
-Planned outcome:
+Outcome:
 
-- Compare parent-switching performance between default Thread behavior and the biparental policy.
-- Produce scenario-based timing/success metrics and recommendation grounded in repeatable trials.
+- Repeated nominal and `-4dB` comparison batches were captured for both the default Thread reference and the biparental policy variant.
+- The parent-response callback fix restored standby discovery on the MED/MTD hardware path.
+- The current biparental policy revision did **not** demonstrate a switching-performance improvement over the default reference behavior in the captured comparison windows.
+- Preferred failover continued to resolve as `miss`, so the milestone closes with a recommendation to tune the preferred-switch path before any further claim of improvement.

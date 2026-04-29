@@ -1,0 +1,9 @@
+variant	B
+scenario	downlink-only
+run_id	003
+router_output_power	-4dB
+ed_output_power	8dB
+yaml	examples/milestone-8-variant-b-biparental-ed.yaml
+duration_seconds	120
+started_utc	2026-04-29T06:55:45Z
+ended_utc	2026-04-29T06:57:45Z

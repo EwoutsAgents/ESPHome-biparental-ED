@@ -1,0 +1,11 @@
+# Reusable package for controlled Thread link degradation tests using ESPHome's
+# built-in OpenThread output_power setting.
+#
+# Note: output_power is applied at firmware startup. To step power down, rebuild /
+# reflash with a lower `thread_output_power` value, or use a runtime helper.
+
+substitutions:
+  thread_output_power: "8dB"
+
+openthread:
+  output_power: ${thread_output_power}

@@ -1,0 +1,323 @@
+INFO ESPHome 2026.4.1
+INFO Reading configuration examples/milestone-8-variant-b-biparental-ed.yaml...
+INFO Starting log output from /dev/ttyACM0 with baud rate 115200
+[20:07:04.499]ESP-ROM:esp32c6-20220919
+[20:07:04.513]Build:Sep 19 2022
+[20:07:04.513]rst:0x1 (POWERON),boot:0xc (SPI_FAST_FLASH_BOOT)
+[20:07:04.513]SPIWP:0xee
+[20:07:04.513]mode:DIO, clock div:2
+[20:07:04.520]load:0x40875730,len:0x16f4
+[20:07:04.520]load:0x4086b910,len:0xed0
+[20:07:04.520]load:0x4086e610,len:0x3190
+[20:07:04.520]entry 0x4086b910
+[20:07:04.532]I (23) boot: ESP-IDF 5.5.4 2nd stage bootloader
+[20:07:04.532]I (24) boot: compile time Apr 28 2026 19:40:25
+[20:07:04.543]I (24) boot: chip revision: v0.2
+[20:07:04.543]I (24) boot: efuse block revision: v0.3
+[20:07:04.543]I (27) boot.esp32c6: SPI Speed      : 80MHz
+[20:07:04.554]I (31) boot.esp32c6: SPI Mode       : DIO
+[20:07:04.554]I (35) boot.esp32c6: SPI Flash Size : 4MB
+[20:07:04.554]I (38) boot: Enabling RNG early entropy source...
+[20:07:04.565]I (43) boot: Partition Table:
+[20:07:04.565]I (45) boot: ## Label            Usage          Type ST Offset   Length
+[20:07:04.576]I (52) boot:  0 otadata          OTA data         01 00 00009000 00002000
+[20:07:04.576]I (58) boot:  1 phy_init         RF data          01 01 0000b000 00001000
+[20:07:04.587]I (65) boot:  2 app0             OTA app          00 10 00010000 001c0000
+[20:07:04.587]I (71) boot:  3 app1             OTA app          00 11 001d0000 001c0000
+[20:07:04.598]I (78) boot:  4 nvs              WiFi data        01 02 00390000 00070000
+[20:07:04.598]I (84) boot: End of partition table
+[20:07:04.604]I (88) esp_image: segment 0: paddr=00010020 vaddr=42080020 size=18a04h (100868) map
+[20:07:04.623]I (114) esp_image: segment 1: paddr=00028a2c vaddr=40800000 size=075ech ( 30188) load
+[20:07:04.627]I (122) esp_image: segment 2: paddr=00030020 vaddr=42000020 size=724ach (468140) map
+[20:07:04.720]I (211) esp_image: segment 3: paddr=000a24d4 vaddr=408075ec size=05d38h ( 23864) load
+[20:07:04.731]I (217) esp_image: segment 4: paddr=000a8214 vaddr=4080d330 size=02b28h ( 11048) load
+[20:07:04.731]I (224) boot: Loaded app from partition at offset 0x10000
+[20:07:04.734]I (224) boot: Disabling RNG early entropy source...
+[20:07:04.737]I (237) cpu_start: Unicore app
+[20:07:04.754]I (245) cpu_start: GPIO 17 and 16 are used as console UART I/O pins
+[20:07:04.754]I (245) cpu_start: Pro cpu start user code
+[20:07:04.765]I (246) cpu_start: cpu freq: 160000000 Hz
+[20:07:04.765]I (247) app_init: Application information:
+[20:07:04.765]I (251) app_init: Project name:     m8-biparental-ed
+[20:07:04.776]I (256) app_init: App version:      2026.4.1
+[20:07:04.776]I (260) app_init: Compile time:     Apr 28 2026 19:40:05
+[20:07:04.787]I (265) app_init: ELF file SHA256:  3b67b4efa...
+[20:07:04.787]I (269) app_init: ESP-IDF:          5.5.4
+[20:07:04.787]I (273) efuse_init: Min chip rev:     v0.0
+[20:07:04.798]I (277) efuse_init: Max chip rev:     v0.99 
+[20:07:04.798]I (281) efuse_init: Chip rev:         v0.2
+[20:07:04.809]I (285) heap_init: Initializing. RAM available for dynamic allocation:
+[20:07:04.809]I (291) heap_init: At 408172B0 len 00065360 (404 KiB): RAM
+[20:07:04.821]I (296) heap_init: At 4087C610 len 00002F54 (11 KiB): RAM
+[20:07:04.821]I (301) heap_init: At 50000000 len 00003FE8 (15 KiB): RTCRAM
+[20:07:04.821]I (307) spi_flash: detected chip: gd
+[20:07:04.832]I (310) spi_flash: flash io: dio
+[20:07:04.832]I (313) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+[20:07:04.843]I (319) sleep_gpio: Enable automatic switching of GPIO sleep configuration
+[20:07:04.843]I (326) coexist: coex firmware version: 093e3d2
+[20:07:04.843]I (330) coexist: coexist rom version 5b8dcfa
+[20:07:04.846]I (334) main_task: Started on CPU0
+[20:07:04.858]I (356) main_task: Calling app_main()
+[20:07:04.967]I \x94\xf3[I][logger:120]: Log initialized
+[20:07:04.967][I][app:067]: Running through setup()
+[20:07:04.978][I][biparental_ed:089]: OpenThread detected; enabling runtime adapter
+[20:07:04.986][D][biparental_ed:102]: Parent response callback requested; waiting for OpenThread lock
+[20:07:04.986][I][biparental_ed:109]: Milestone 3 scaffold initialized
+[20:07:05.039][D][esp-idf:000][ot_main]: 
+[20:07:05.055][C][component:246]: Setup openthread took 83ms
+[20:07:05.066][D][esp-idf:000][ot_main]: I (545) OT_STATE: netif up
+[20:07:05.066][D][openthread:157]: Setting up SRP services. count = 1
+[20:07:05.077][D][openthread:207]: Added service: _http._tcp
+[20:07:05.077][D][openthread:211]: Finished SRP setup
+[20:07:05.077][I][app:123]: setup() finished successfully!
+[20:07:05.088][D][esp-idf:000][ot_main]: I (460) OPENTHREAD: Host connection mode none
+[20:07:05.100][D][esp-idf:000][ot_main]: I (460) phy_init: phy_version 343,b513b46,Nov 14 2025,16:34:12
+[20:07:05.111][D][esp-idf:000][ot_main]: I (521) phy: libbtbb version: c493933, Nov 14 2025, 16:34:25
+[20:07:05.122][D][esp-idf:000][ot_main]: I (532) OPENTHREAD: OpenThread attached to netif
+[20:07:05.122][D][esp-idf:000][ot_main]: 
+[20:07:05.133][D][openthread:113][ot_main]: Thread Version: 4
+[20:07:05.144][D][openthread:137][ot_main]: Link Mode Device Type: FALSE, Network Data: FALSE, RX On When Idle: TRUE
+[20:07:05.144][I][openthread:152][ot_main]: Activating dataset...
+[20:07:05.155][D][esp-idf:000][ot_main]: I(536) OPENTHREAD:
+[20:07:05.166][D][esp-idf:000][ot_main]: [N] Mle-----------: Role disabled -> detached
+[20:07:05.166][D][esp-idf:000][ot_main]: I(575) OPENTHREAD:
+[20:07:05.177][D][esp-idf:000][ot_main]: [N] Mle-----------: Role detached -> child
+[20:07:05.177][D][esp-idf:000][ot_main]: 
+[20:07:05.188][D][esp-idf:000][ot_main]: W(576) OPENTHREAD:
+[20:07:05.200][D][esp-idf:000][ot_main]: [W] Mle-----------: Failed to process Child Update Response as child: NotFound
+[20:07:05.211][W][component:522]: logger took a long time for an operation (103 ms), max is 30 ms
+[20:07:05.211][I][biparental_ed:120]: Registered OpenThread parent response callback
+[20:07:05.222][I][app:154]: ESPHome version 2026.4.1 compiled on 2026-04-28 20:06:44 +0200
+[20:07:05.222][I][app:161]: ESP32 Chip: ESP32-C6 rev0.2, 1 core(s)
+[20:07:05.233][C][logger:219]: Logger:
+[20:07:05.233][C][logger:219]:   Max Level: DEBUG
+[20:07:05.233][C][logger:219]:   Initial Level: DEBUG
+[20:07:05.233][C][logger:226]:   Log Baud Rate: 115200
+[20:07:05.244][C][logger:226]:   Hardware UART: UART0
+[20:07:05.244][C][logger:235]:   Task Log Buffer Size: 768 bytes
+[20:07:05.266][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=0ms attached_as_child=true standby=false ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:07:05.288][D][biparental_ed.diag:036]: state=1 health=2 reason=1 standby=no active=0xe000 (rssi=-20 lm=100 age=0ms) standby=0xffff (score=-127 rssi=-127 lm=0 fresh=0ms) failovers=0 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:07:05.300][C][biparental_ed:212]: Biparental ED Component:
+[20:07:05.300][C][biparental_ed:213]:   degraded_rssi_threshold: -72
+[20:07:05.311][C][biparental_ed:214]:   hard_failure_timeout_ms: 15000
+[20:07:05.311][C][biparental_ed:215]:   degrade_persist_time_ms: 10000
+[20:07:05.322][C][biparental_ed:216]:   hold_down_time_ms: 30000
+[20:07:05.322][C][biparental_ed:217]:   standby_refresh_interval_ms: 60000
+[20:07:05.333][C][biparental_ed:218]:   failover_eligible_delay_ms: 10000
+[20:07:05.344][C][biparental_ed:219]:   post_failover_stabilize_time_ms: 10000
+[20:07:05.344][C][biparental_ed:221]:   preferred_reattach_timeout_ms: 5000
+[20:07:05.355][C][biparental_ed:223]:   enable_parent_response_callback: true
+[20:07:05.355][C][biparental_ed:225]:   control_plane_error_threshold: 3
+[20:07:05.366][C][biparental_ed:227]:   standby_replace_hysteresis: 5
+[20:07:05.366][C][biparental_ed:229]:   neighbor_scan_interval_ms: 10000
+[20:07:05.377][C][biparental_ed:230]:   neighbor_max_age_ms: 60000
+[20:07:05.377][C][biparental_ed:231]:   parent_search_refresh_interval_ms: 0
+[20:07:05.388][C][biparental_ed:233]:   runtime_debug_enabled: true
+[20:07:05.388][C][biparental_ed:234]:   runtime_debug_interval_ms: 5000
+[20:07:05.400][C][biparental_ed:235]:   verbose_diagnostics: true
+[20:07:05.411][C][biparental_ed:236]:   diagnostics_publish_interval_ms: 5000
+[20:07:05.411][C][openthread:029]: Open Thread:
+[20:07:05.411][C][openthread:033]:   Device Type: MTD
+[20:07:05.422][C][openthread:040]:   Device is configured as Minimal End Device (MED)
+[20:07:05.422][C][openthread:044]:   Output power: -4dBm
+[20:07:05.426][C][mdns:194]: mDNS:
+[20:07:05.426][C][mdns:194]:   Hostname: m8-biparental-ed
+[20:07:06.230][D][biparental_ed.diag:036]: state=2 health=0 reason=0 standby=no active=0xe000 (rssi=-20 lm=100 age=1000ms) standby=0xffff (score=-127 rssi=-127 lm=0 fresh=0ms) failovers=0 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:07:10.233][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=5000ms attached_as_child=true standby=false ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:07:11.233][D][biparental_ed.diag:036]: state=2 health=0 reason=0 standby=no active=0xe000 (rssi=-20 lm=100 age=6000ms) standby=0xffff (score=-127 rssi=-127 lm=0 fresh=0ms) failovers=0 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:07:15.233][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=3000ms attached_as_child=true standby=false ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:07:16.237][D][biparental_ed.diag:036]: state=2 health=0 reason=0 standby=no active=0xe000 (rssi=-20 lm=100 age=4000ms) standby=0xffff (score=-127 rssi=-127 lm=0 fresh=0ms) failovers=0 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:07:20.240][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=8000ms attached_as_child=true standby=false ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:07:21.245][D][biparental_ed.diag:036]: state=2 health=0 reason=0 standby=no active=0xe000 (rssi=-20 lm=100 age=9000ms) standby=0xffff (score=-127 rssi=-127 lm=0 fresh=0ms) failovers=0 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:07:25.244][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=13000ms attached_as_child=true standby=false ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:07:26.249][D][biparental_ed.diag:036]: state=2 health=0 reason=0 standby=no active=0xe000 (rssi=-20 lm=100 age=14000ms) standby=0xffff (score=-127 rssi=-127 lm=0 fresh=0ms) failovers=0 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:07:27.249][D][biparental_ed.diag:036]: state=2 health=2 reason=1 standby=no active=0xe000 (rssi=-20 lm=100 age=15000ms) standby=0xffff (score=-127 rssi=-127 lm=0 fresh=0ms) failovers=0 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:07:28.249][D][biparental_ed.diag:036]: state=2 health=0 reason=0 standby=no active=0xe000 (rssi=-20 lm=100 age=0ms) standby=0xffff (score=-127 rssi=-127 lm=0 fresh=0ms) failovers=0 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:07:30.248][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=2000ms attached_as_child=true standby=false ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:07:33.249][D][biparental_ed.diag:036]: state=2 health=0 reason=0 standby=no active=0xe000 (rssi=-20 lm=100 age=5000ms) standby=0xffff (score=-127 rssi=-127 lm=0 fresh=0ms) failovers=0 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:07:35.248][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=7000ms attached_as_child=true standby=false ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:07:38.257][D][biparental_ed.diag:036]: state=2 health=0 reason=0 standby=no active=0xe000 (rssi=-20 lm=100 age=10000ms) standby=0xffff (score=-127 rssi=-127 lm=0 fresh=0ms) failovers=0 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:07:40.256][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=12000ms attached_as_child=true standby=false ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:07:43.261][D][biparental_ed.diag:036]: state=2 health=0 reason=0 standby=no active=0xe000 (rssi=-20 lm=100 age=0ms) standby=0xffff (score=-127 rssi=-127 lm=0 fresh=0ms) failovers=0 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:07:45.264][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=2000ms attached_as_child=true standby=false ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:07:48.269][D][biparental_ed.diag:036]: state=2 health=0 reason=0 standby=no active=0xe000 (rssi=-20 lm=100 age=5000ms) standby=0xffff (score=-127 rssi=-127 lm=0 fresh=0ms) failovers=0 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:07:50.272][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=7000ms attached_as_child=true standby=false ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:07:53.277][D][biparental_ed.diag:036]: state=2 health=0 reason=0 standby=no active=0xe000 (rssi=-20 lm=100 age=11000ms) standby=0xffff (score=-127 rssi=-127 lm=0 fresh=0ms) failovers=0 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:07:55.280][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=13000ms attached_as_child=true standby=false ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:07:57.285][D][biparental_ed.diag:036]: state=5 health=2 reason=1 standby=no active=0xe000 (rssi=-20 lm=100 age=15000ms) standby=0xffff (score=-127 rssi=-127 lm=0 fresh=0ms) failovers=0 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:07:58.272][W][biparental_ed:354]: Requesting generic reattach/failover (reason=no_standby)
+[20:07:58.283][D][esp-idf:000]: I(53763) OPENTHREAD:
+[20:07:58.283][D][esp-idf:000]: [N] Mle-----------: Role child -> detached
+[20:07:58.283][D][esp-idf:000]: 
+[20:07:58.294][D][esp-idf:000]: I(53764) OPENTHREAD:
+[20:07:58.294][D][esp-idf:000]: [N] Mle-----------: RLOC16 e00b -> fffe
+[20:07:58.305][D][esp-idf:000]: 
+[20:07:58.305][I][biparental_ed.ot:340]: Generic failover request accepted (detaching)
+[20:07:58.326][D][biparental_ed.diag:036]: state=7 health=2 reason=1 standby=no active=0xe000 (rssi=-20 lm=100 age=16000ms) standby=0xffff (score=-127 rssi=-127 lm=0 fresh=0ms) failovers=0 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:07:59.272][D][biparental_ed.ot:091]: read_parent_metrics: role is not CHILD yet
+[20:07:59.291][D][biparental_ed.diag:036]: state=7 health=2 reason=1 standby=no active=0xe000 (rssi=-127 lm=0 age=0ms) standby=0xffff (score=-127 rssi=-127 lm=0 fresh=0ms) failovers=0 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:08:00.284][D][biparental_ed:189]: runtime: got_metrics=false metrics.valid=false parent=0xffff rssi=-127 lm=0 age=0ms attached_as_child=false standby=false ot_present=true ot_lock_init=true ot_connected=false ot_lock=true ot_role=1 ot_parent_err=0 ot_parent=0xe000
+[20:08:01.369][D][esp-idf:000][ot_main]: I(56854) OPENTHREAD:
+[20:08:01.378][D][esp-idf:000][ot_main]: [N] Mle-----------: Attach attempt 1, AnyPartition 
+[20:08:01.378][D][esp-idf:000][ot_main]: 
+[20:08:02.150][D][esp-idf:000][ot_main]: I(57637) OPENTHREAD:
+[20:08:02.161][D][esp-idf:000][ot_main]: [N] Mle-----------: RLOC16 fffe -> e00b
+[20:08:02.161][D][esp-idf:000][ot_main]: 
+[20:08:02.172][D][esp-idf:000][ot_main]: I(57638) OPENTHREAD:
+[20:08:02.177][D][esp-idf:000][ot_main]: [N] Mle-----------: Role detached -> child
+[20:08:02.177][D][esp-idf:000][ot_main]: 
+[20:08:02.288][D][biparental_ed.diag:036]: state=8 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=0ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=805ms) failovers=1 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:08:05.287][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=3000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:08:07.292][D][biparental_ed.diag:036]: state=8 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=5000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=5809ms) failovers=1 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:08:10.297][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=8000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:08:12.299][D][biparental_ed.diag:036]: state=3 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=10000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=10815ms) failovers=1 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:08:15.305][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=1000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:08:17.306][D][biparental_ed.diag:036]: state=3 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=3000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=15822ms) failovers=1 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:08:20.309][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=6000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:08:22.314][D][biparental_ed.diag:036]: state=3 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=8000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=20830ms) failovers=1 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:08:25.313][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=11000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:08:27.318][D][biparental_ed.diag:036]: state=3 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=13000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=25834ms) failovers=1 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:08:29.323][D][biparental_ed.diag:036]: state=3 health=2 reason=1 standby=yes active=0xe000 (rssi=-20 lm=100 age=15000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=27838ms) failovers=1 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:08:30.321][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=16000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:08:32.322][D][biparental_ed.diag:036]: state=5 health=2 reason=1 standby=yes active=0xe000 (rssi=-20 lm=100 age=18000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=30838ms) failovers=1 preferred(a/s/m)=0/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:08:33.313][W][biparental_ed:338]: Requesting preferred failover (target=0x1800)
+[20:08:33.324][I][biparental_ed.ot:280]: Preferred failover request: started better-parent search (target=0x1800)
+[20:08:33.324][D][esp-idf:000]: I(88808) OPENTHREAD:
+[20:08:33.335][D][esp-idf:000]: [N] Mle-----------: Role child -> detached
+[20:08:33.335][D][esp-idf:000]: 
+[20:08:33.346][D][esp-idf:000]: I(88808) OPENTHREAD:
+[20:08:33.346][D][esp-idf:000]: [N] Mle-----------: RLOC16 e00b -> fffe
+[20:08:33.346][D][esp-idf:000]: 
+[20:08:33.357][I][biparental_ed.ot:295]: Preferred failover request accepted (target=0x1800, detaching)
+[20:08:33.379][D][biparental_ed.diag:036]: state=6 health=2 reason=1 standby=yes active=0xe000 (rssi=-20 lm=100 age=19000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=31859ms) failovers=1 preferred(a/s/m)=1/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:08:33.391][D][esp-idf:000][ot_main]: I(88804) OPENTHREAD:
+[20:08:33.398][D][esp-idf:000][ot_main]: [N] Mle-----------: Attach attempt 0, BetterParent 
+[20:08:33.398][D][esp-idf:000][ot_main]: 
+[20:08:33.609][D][esp-idf:000][ot_main]: I(89096) OPENTHREAD:
+[20:08:33.618][D][esp-idf:000][ot_main]: [N] Mle-----------: Attach attempt 1, AnyPartition 
+[20:08:33.618][D][esp-idf:000][ot_main]: 
+[20:08:33.670][D][esp-idf:000][ot_main]: W(89158) OPENTHREAD:
+[20:08:33.680][D][esp-idf:000][ot_main]: [W] Mle-----------: Failed to process Parent Response: Security
+[20:08:33.680][D][esp-idf:000][ot_main]: 
+[20:08:33.697][D][esp-idf:000][ot_main]: W(89186) OPENTHREAD:
+[20:08:33.707][D][esp-idf:000][ot_main]: [W] Mle-----------: Failed to process Parent Response: Security
+[20:08:33.707][D][esp-idf:000][ot_main]: 
+[20:08:33.833][D][esp-idf:000][ot_main]: W(89322) OPENTHREAD:
+[20:08:33.843][D][esp-idf:000][ot_main]: [W] Mle-----------: Failed to process Parent Response: Security
+[20:08:33.843][D][esp-idf:000][ot_main]: 
+[20:08:34.313][D][biparental_ed.ot:091]: read_parent_metrics: role is not CHILD yet
+[20:08:34.333][D][biparental_ed.diag:036]: state=6 health=2 reason=1 standby=yes active=0xe000 (rssi=-127 lm=0 age=0ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=32843ms) failovers=1 preferred(a/s/m)=1/0/0 preferred(target=0xffff attached=0xffff outcome=none result_state=0)
+[20:08:34.390][D][esp-idf:000][ot_main]: I(89877) OPENTHREAD:
+[20:08:34.401][D][esp-idf:000][ot_main]: [N] Mle-----------: RLOC16 fffe -> e00b
+[20:08:34.401][D][esp-idf:000][ot_main]: 
+[20:08:34.412][D][esp-idf:000][ot_main]: I(89877) OPENTHREAD:
+[20:08:34.417][D][esp-idf:000][ot_main]: [N] Mle-----------: Role detached -> child
+[20:08:34.417][D][esp-idf:000][ot_main]: 
+[20:08:35.338][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=1000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:08:35.338][I][biparental_ed:367]: Preferred outcome=miss target=0x1800 attached=0xe000 -> result_state=7
+[20:08:35.350][W][biparental_ed:348]: Preferred outcome=miss target=0x1800 attached=0xe000 -> action=generic_reattach
+[20:08:35.361][D][esp-idf:000]: I(90819) OPENTHREAD:
+[20:08:35.361][D][esp-idf:000]: [N] Mle-----------: Role child -> detached
+[20:08:35.361][D][esp-idf:000]: 
+[20:08:35.372][D][esp-idf:000]: I(90828) OPENTHREAD:
+[20:08:35.372][D][esp-idf:000]: [N] Mle-----------: RLOC16 e00b -> fffe
+[20:08:35.383][D][esp-idf:000]: 
+[20:08:35.383][D][esp-idf:000]: I(90840) OPENTHREAD:
+[20:08:35.394][D][esp-idf:000]: [N] Mle-----------: Attach attempt 1 unsuccessful, will try again in 0.257 seconds
+[20:08:35.394][D][esp-idf:000]: 
+[20:08:35.405][I][biparental_ed.ot:340]: Generic failover request accepted (detaching)
+[20:08:35.427][D][biparental_ed.diag:036]: state=7 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=1000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=33901ms) failovers=1 preferred(a/s/m)=1/0/1 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:08:35.431][W][component:522]: biparental_ed took a long time for an operation (76 ms), max is 30 ms
+[20:08:35.629][D][esp-idf:000][ot_main]: I(91115) OPENTHREAD:
+[20:08:35.637][D][esp-idf:000][ot_main]: [N] Mle-----------: Attach attempt 2, AnyPartition 
+[20:08:35.637][D][esp-idf:000][ot_main]: 
+[20:08:36.329][D][biparental_ed.diag:036]: state=7 health=2 reason=1 standby=yes active=0xe000 (rssi=-127 lm=0 age=0ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=658ms) failovers=1 preferred(a/s/m)=1/0/1 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:08:36.408][D][esp-idf:000][ot_main]: I(91895) OPENTHREAD:
+[20:08:36.419][D][esp-idf:000][ot_main]: [N] Mle-----------: RLOC16 fffe -> e00b
+[20:08:36.419][D][esp-idf:000][ot_main]: 
+[20:08:36.430][D][esp-idf:000][ot_main]: I(91895) OPENTHREAD:
+[20:08:36.435][D][esp-idf:000][ot_main]: [N] Mle-----------: Role detached -> child
+[20:08:36.435][D][esp-idf:000][ot_main]: 
+[20:08:37.331][D][biparental_ed.diag:036]: state=8 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=1000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=1661ms) failovers=2 preferred(a/s/m)=1/0/1 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:08:40.333][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=4000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:08:42.334][D][biparental_ed.diag:036]: state=8 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=6000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=6663ms) failovers=2 preferred(a/s/m)=1/0/1 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:08:45.333][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=0ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:08:47.338][D][biparental_ed.diag:036]: state=3 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=2000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=11667ms) failovers=2 preferred(a/s/m)=1/0/1 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:08:50.341][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=5000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:08:52.346][D][biparental_ed.diag:036]: state=3 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=7000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=16675ms) failovers=2 preferred(a/s/m)=1/0/1 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:08:55.353][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=10000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:08:57.355][D][biparental_ed.diag:036]: state=3 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=12000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=21683ms) failovers=2 preferred(a/s/m)=1/0/1 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:09:00.368][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=15000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:09:00.382][D][biparental_ed.diag:036]: state=3 health=2 reason=1 standby=yes active=0xe000 (rssi=-20 lm=100 age=15000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=24688ms) failovers=2 preferred(a/s/m)=1/0/1 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:09:05.371][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=0ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:09:05.384][D][biparental_ed.diag:036]: state=3 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=0ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=29691ms) failovers=2 preferred(a/s/m)=1/0/1 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:09:10.375][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=5000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:09:10.389][D][biparental_ed.diag:036]: state=3 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=5000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=34695ms) failovers=2 preferred(a/s/m)=1/0/1 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:09:15.382][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=10000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:09:15.396][D][biparental_ed.diag:036]: state=3 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=10000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=39702ms) failovers=2 preferred(a/s/m)=1/0/1 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:09:20.385][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=4000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:09:20.399][D][biparental_ed.diag:036]: state=3 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=4000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=44705ms) failovers=2 preferred(a/s/m)=1/0/1 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:09:25.388][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=9000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:09:25.402][D][biparental_ed.diag:036]: state=3 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=9000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=49708ms) failovers=2 preferred(a/s/m)=1/0/1 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:09:30.395][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=14000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:09:30.409][D][biparental_ed.diag:036]: state=3 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=14000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=54715ms) failovers=2 preferred(a/s/m)=1/0/1 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:09:31.386][D][biparental_ed.diag:036]: state=5 health=2 reason=1 standby=yes active=0xe000 (rssi=-20 lm=100 age=15000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=55714ms) failovers=2 preferred(a/s/m)=1/0/1 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:09:32.375][W][biparental_ed:338]: Requesting preferred failover (target=0x1800)
+[20:09:32.386][I][biparental_ed.ot:280]: Preferred failover request: started better-parent search (target=0x1800)
+[20:09:32.386][D][esp-idf:000]: I(147870) OPENTHREAD:
+[20:09:32.397][D][esp-idf:000]: [N] Mle-----------: Role child -> detached
+[20:09:32.397][D][esp-idf:000]: 
+[20:09:32.409][D][esp-idf:000]: I(147870) OPENTHREAD:
+[20:09:32.409][D][esp-idf:000]: [N] Mle-----------: RLOC16 e00b -> fffe
+[20:09:32.409][D][esp-idf:000]: 
+[20:09:32.420][I][biparental_ed.ot:295]: Preferred failover request accepted (target=0x1800, detaching)
+[20:09:32.442][D][biparental_ed.diag:036]: state=6 health=2 reason=1 standby=yes active=0xe000 (rssi=-20 lm=100 age=16000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=56734ms) failovers=2 preferred(a/s/m)=2/0/1 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:09:32.453][D][esp-idf:000][ot_main]: I(147866) OPENTHREAD:
+[20:09:32.460][D][esp-idf:000][ot_main]: [N] Mle-----------: Attach attempt 0, BetterParent 
+[20:09:32.460][D][esp-idf:000][ot_main]: 
+[20:09:32.897][D][esp-idf:000][ot_main]: I(148383) OPENTHREAD:
+[20:09:32.906][D][esp-idf:000][ot_main]: [N] Mle-----------: Attach attempt 1, AnyPartition 
+[20:09:32.906][D][esp-idf:000][ot_main]: 
+[20:09:33.375][D][biparental_ed.ot:091]: read_parent_metrics: role is not CHILD yet
+[20:09:33.395][D][biparental_ed.diag:036]: state=6 health=2 reason=1 standby=yes active=0xe000 (rssi=-127 lm=0 age=0ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=948ms) failovers=2 preferred(a/s/m)=2/0/1 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:09:33.676][D][esp-idf:000][ot_main]: I(149163) OPENTHREAD:
+[20:09:33.687][D][esp-idf:000][ot_main]: [N] Mle-----------: RLOC16 fffe -> e00b
+[20:09:33.687][D][esp-idf:000][ot_main]: 
+[20:09:33.698][D][esp-idf:000][ot_main]: I(149163) OPENTHREAD:
+[20:09:33.703][D][esp-idf:000][ot_main]: [N] Mle-----------: Role detached -> child
+[20:09:33.703][D][esp-idf:000][ot_main]: 
+[20:09:34.378][I][biparental_ed:367]: Preferred outcome=miss target=0x1800 attached=0xe000 -> result_state=7
+[20:09:34.389][W][biparental_ed:348]: Preferred outcome=miss target=0x1800 attached=0xe000 -> action=generic_reattach
+[20:09:34.401][D][esp-idf:000]: I(149870) OPENTHREAD:
+[20:09:34.401][D][esp-idf:000]: [N] Mle-----------: Role child -> detached
+[20:09:34.401][D][esp-idf:000]: 
+[20:09:34.412][D][esp-idf:000]: I(149870) OPENTHREAD:
+[20:09:34.412][D][esp-idf:000]: [N] Mle-----------: RLOC16 e00b -> fffe
+[20:09:34.423][D][esp-idf:000]: 
+[20:09:34.423][D][esp-idf:000]: I(149878) OPENTHREAD:
+[20:09:34.434][D][esp-idf:000]: [N] Mle-----------: Attach attempt 1 unsuccessful, will try again in 0.298 seconds
+[20:09:34.434][D][esp-idf:000]: 
+[20:09:34.445][I][biparental_ed.ot:340]: Generic failover request accepted (detaching)
+[20:09:34.461][D][biparental_ed.diag:036]: state=7 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=1000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=1985ms) failovers=2 preferred(a/s/m)=2/0/2 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:09:34.707][D][esp-idf:000][ot_main]: I(150193) OPENTHREAD:
+[20:09:34.716][D][esp-idf:000][ot_main]: [N] Mle-----------: Attach attempt 2, AnyPartition 
+[20:09:34.716][D][esp-idf:000][ot_main]: 
+[20:09:35.401][D][biparental_ed:189]: runtime: got_metrics=false metrics.valid=false parent=0xffff rssi=-127 lm=0 age=0ms attached_as_child=false standby=true ot_present=true ot_lock_init=true ot_connected=false ot_lock=true ot_role=1 ot_parent_err=0 ot_parent=0xe000
+[20:09:35.414][D][biparental_ed.diag:036]: state=7 health=2 reason=1 standby=yes active=0xe000 (rssi=-127 lm=0 age=0ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=428ms) failovers=2 preferred(a/s/m)=2/0/2 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:09:35.486][D][esp-idf:000][ot_main]: I(150973) OPENTHREAD:
+[20:09:35.497][D][esp-idf:000][ot_main]: [N] Mle-----------: RLOC16 fffe -> e00b
+[20:09:35.497][D][esp-idf:000][ot_main]: 
+[20:09:35.508][D][esp-idf:000][ot_main]: I(150973) OPENTHREAD:
+[20:09:35.513][D][esp-idf:000][ot_main]: [N] Mle-----------: Role detached -> child
+[20:09:35.513][D][esp-idf:000][ot_main]: 
+[20:09:36.393][D][biparental_ed.diag:036]: state=8 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=1000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=1429ms) failovers=3 preferred(a/s/m)=2/0/2 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:09:40.391][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=2000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:09:41.396][D][biparental_ed.diag:036]: state=8 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=3000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=6432ms) failovers=3 preferred(a/s/m)=2/0/2 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:09:45.396][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=7000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:09:46.401][D][biparental_ed.diag:036]: state=3 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=8000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=11436ms) failovers=3 preferred(a/s/m)=2/0/2 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:09:50.403][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=1000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:09:51.405][D][biparental_ed.diag:036]: state=3 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=2000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=16440ms) failovers=3 preferred(a/s/m)=2/0/2 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:09:55.404][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=6000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:09:56.409][D][biparental_ed.diag:036]: state=3 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=7000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=21444ms) failovers=3 preferred(a/s/m)=2/0/2 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)
+[20:10:00.408][D][biparental_ed:189]: runtime: got_metrics=true metrics.valid=true parent=0xe000 rssi=-20 lm=100 age=11000ms attached_as_child=true standby=true ot_present=true ot_lock_init=true ot_connected=true ot_lock=true ot_role=2 ot_parent_err=0 ot_parent=0xe000
+[20:10:01.413][D][biparental_ed.diag:036]: state=3 health=0 reason=0 standby=yes active=0xe000 (rssi=-20 lm=100 age=12000ms) standby=0x1800 (score=10 rssi=-41 lm=30 fresh=26448ms) failovers=3 preferred(a/s/m)=2/0/2 preferred(target=0x1800 attached=0xe000 outcome=miss result_state=7)

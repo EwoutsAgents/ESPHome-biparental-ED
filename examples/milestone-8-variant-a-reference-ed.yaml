@@ -1,13 +1,12 @@
 substitutions:
-  devicename: biparental-ed
-  friendly: "Biparental ED"
+  devicename: m8-reference-ed
+  friendly: "M8 Reference ED"
+  # ESP32-C6 OpenThread TX power range in ESPHome: -15dB..20dB.
+  thread_output_power: "8dB"
 
 esphome:
   name: ${devicename}
   friendly_name: ${friendly}
-  platformio_options:
-    build_flags:
-      - -DOPENTHREAD_CONFIG_MLE_PARENT_RESPONSE_CALLBACK_API_ENABLE=1
 
 esp32:
   board: esp32-c6-devkitc-1
@@ -29,6 +28,7 @@ mdns:
 openthread:
   mdns_id: mdns_comp
   device_type: MTD
+  output_power: ${thread_output_power}
   force_dataset: true
   channel: 15
   pan_id: 0x1234
@@ -37,24 +37,3 @@ openthread:
   network_key: 0x10112233445566778899AABBCCDDEEFF
   pskc: 0x112233445566778899AABBCCDDEEFF00
   mesh_local_prefix: "fd11:22:33:44::/64"
-
-external_components:
-  - source:
-      type: local
-      path: ../components
-    components: [biparental_ed]
-
-biparental_ed:
-  id: biparental_controller
-  update_interval: 1s
-
-  degraded_rssi_threshold: -72
-  hard_failure_timeout: 15s
-  degrade_persist_time: 10s
-
-  standby_refresh_interval: 60s
-  neighbor_scan_interval: 10s
-  neighbor_max_age: 60s
-  standby_replace_hysteresis: 5
-
-  parent_search_refresh_interval: 0s

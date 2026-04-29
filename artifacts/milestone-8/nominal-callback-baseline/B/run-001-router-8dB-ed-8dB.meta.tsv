@@ -1,0 +1,7 @@
+variant	B
+scenario	nominal-callback-baseline
+run_id	001
+router_output_power	8dB
+ed_output_power	8dB
+yaml	examples/milestone-8-variant-b-biparental-ed.yaml
+started_utc	2026-04-28T17:36:12Z

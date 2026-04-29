@@ -1,0 +1,7 @@
+variant	B
+scenario	clean-reflash
+run_id	001
+router_output_power	8dB
+ed_output_power	8dB
+yaml	examples/milestone-8-variant-b-search-refresh.yaml
+started_utc	2026-04-28T17:04:08Z

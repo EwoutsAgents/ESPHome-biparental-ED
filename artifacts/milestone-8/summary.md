@@ -161,3 +161,77 @@ symmetric/B/run-001-router--4dB-ed--4dB.log
 ```
 
 Current first-pass coverage includes Variant B nominal/uplink-only/downlink-only/symmetric and matching Variant A degraded reference captures at the `-4dB` degradation point. Routers and YAML substitutions were restored to nominal `8dB`, and the ED was reflashed back to Variant B nominal `8dB` afterward. Remaining comparison work: repeat B/A trials for statistics and decide whether to continue the deeper power sweep (`-8dB`, `-12dB`, `-15dB`).
+
+## Post-fix spot-checks after preferred-search implementation change
+
+Date: 2026-04-29
+
+After updating the preferred path so `request_failover_to_preferred()` stays attached during `otThreadSearchForBetterParent()`, a small hardware follow-up was run to see whether the previous preferred-`miss` issue was resolved in practice.
+
+### Nominal short-window check
+
+Artifact:
+
+- `artifacts/milestone-8/nominal-postfix/B/run-001-router-8dB-ed-8dB.log`
+
+Result:
+
+- firmware booted with the updated callback + preferred-search logic;
+- the window did not trigger a preferred handoff;
+- one early `no_standby` generic reattach occurred, after which standby recovered and the node stayed attached.
+
+Interpretation: useful as a smoke check of the updated firmware on the bench, but not enough by itself to answer the preferred-`miss` question.
+
+### Uplink-only three-run micro-batch
+
+To force the preferred path to run, the ED was reflashed at `-4dB` while routers stayed nominal `8dB`.
+
+Artifacts:
+
+- `artifacts/milestone-8/uplink-only-postfix/B/run-001-router-8dB-ed--4dB.log`
+- `artifacts/milestone-8/uplink-only-postfix/B/run-002-router-8dB-ed--4dB.log`
+- `artifacts/milestone-8/uplink-only-postfix/B/run-003-router-8dB-ed--4dB.log`
+
+Per-run outcome:
+
+| Run | Preferred request | Outcome | Summary |
+|---|---|---|---|
+| `001` | yes | `miss` | best-effort preferred parent search accepted; `Attach attempt 0, BetterParent` observed; attached parent still returned to the original parent, then generic fallback recovered |
+| `002` | no | n/a | one early `no_standby` generic reattach; standby recovered; no preferred request issued before the window ended |
+| `003` | yes | `miss` | same pattern as run `001`, with attached search accepted and BetterParent attempted before generic fallback |
+
+Aggregate:
+
+```text
+preferred requests exercised: 2
+preferred successes:          0
+preferred misses:             2
+runs without preferred req:   1
+```
+
+Representative evidence from the exercised runs:
+
+```text
+Requesting best-effort preferred parent search (target=0x8c00)
+Best-effort preferred parent search accepted (target=0x8c00, staying attached while OpenThread searches)
+Attach attempt 0, BetterParent
+Preferred outcome=miss target=0x8c00 attached=0xe000 -> action=generic_reattach
+```
+
+and:
+
+```text
+Requesting best-effort preferred parent search (target=0x9400)
+Best-effort preferred parent search accepted (target=0x9400, staying attached while OpenThread searches)
+Attach attempt 0, BetterParent
+Preferred outcome=miss target=0x9400 attached=0xe000 -> action=generic_reattach
+```
+
+### Updated takeaway
+
+These post-fix spot-checks confirm two things at once:
+
+1. the implementation fix is real — the device now stays attached and OpenThread performs `BetterParent` search before fallback;
+2. the original Milestone 8 practical issue is **not yet resolved on hardware** — the preferred attempts exercised in this follow-up still ended as `miss` and recovered through generic reattach.
+
+The ED was restored to the nominal Variant B image after the micro-batch.

@@ -349,3 +349,79 @@ ESPHome validation:
 - `scripts/milestone8-validate.sh`
 - `scripts/milestone8-validate.sh --compile`
 - additional component-bearing config validation/compile for `examples/link-degradation-ed.yaml`
+- additional config/compile for `examples/milestone-8-variant-b-search-refresh.yaml`
+
+### Post-fix hardware spot-checks
+
+After the implementation change above, a small follow-up hardware check was run before redoing the full comparison matrix.
+
+#### Nominal short window
+
+Artifact:
+
+- `artifacts/milestone-8/nominal-postfix/B/run-001-router-8dB-ed-8dB.log`
+
+Observed behavior:
+
+- Variant B booted and registered the parent-response callback correctly.
+- The short window did **not** exercise a preferred-target handoff.
+- It first hit one `reason=no_standby` generic reattach, then recovered `standby=yes` and remained attached.
+
+Interpretation:
+
+- this confirmed the updated firmware was running on hardware,
+- but it did **not** answer whether preferred-target misses were solved.
+
+#### Uplink-only micro-batch after the fix
+
+To force the preferred path to execute, a small three-run Variant B micro-batch was captured with routers kept nominal and the ED reflashed at `-4dB`:
+
+- scenario: `uplink-only-postfix`
+- router power: `8dB`
+- ED power: `-4dB`
+- artifacts:
+  - `artifacts/milestone-8/uplink-only-postfix/B/run-001-router-8dB-ed--4dB.log`
+  - `artifacts/milestone-8/uplink-only-postfix/B/run-002-router-8dB-ed--4dB.log`
+  - `artifacts/milestone-8/uplink-only-postfix/B/run-003-router-8dB-ed--4dB.log`
+
+Micro-batch summary:
+
+| Run | Preferred request exercised? | Outcome | Notes |
+|---|---|---|---|
+| `001` | yes | `miss` | log shows `Requesting best-effort preferred parent search`, `Attach attempt 0, BetterParent`, then generic fallback after reattaching to the original parent |
+| `002` | no | n/a | one early `no_standby` generic reattach, then standby recovered and the window ended without a preferred request |
+| `003` | yes | `miss` | same pattern as run 001: attached search accepted, BetterParent attempt observed, final attached parent still not equal to target |
+
+Aggregate result from the three-run micro-batch:
+
+- preferred requests exercised: `2`
+- preferred successes: `0`
+- preferred misses: `2`
+- runs with no preferred request during the capture window: `1`
+
+Important log evidence from the exercised runs:
+
+```text
+Requesting best-effort preferred parent search (target=0x8c00)
+Best-effort preferred parent search accepted (target=0x8c00, staying attached while OpenThread searches)
+Attach attempt 0, BetterParent
+Preferred outcome=miss target=0x8c00 attached=0xe000 -> action=generic_reattach
+```
+
+and similarly for run `003`:
+
+```text
+Requesting best-effort preferred parent search (target=0x9400)
+Best-effort preferred parent search accepted (target=0x9400, staying attached while OpenThread searches)
+Attach attempt 0, BetterParent
+Preferred outcome=miss target=0x9400 attached=0xe000 -> action=generic_reattach
+```
+
+#### Post-fix interpretation
+
+This follow-up hardware evidence sharpens the conclusion:
+
+- the **control-path bug is fixed** — the device now stays attached and OpenThread actually performs `BetterParent` search before fallback;
+- however, the **practical Milestone 8 issue is not yet solved** in this setup — the exercised preferred attempts still resolved as `miss`, with recovery continuing through generic reattach.
+
+So the code change corrected the preferred-search mechanics, but it did not yet produce a demonstrated preferred-target switching win on hardware.

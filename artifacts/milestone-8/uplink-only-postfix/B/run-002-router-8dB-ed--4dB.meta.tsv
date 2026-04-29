@@ -1,0 +1,7 @@
+variant	B
+scenario	uplink-only-postfix
+run_id	002
+router_output_power	8dB
+ed_output_power	-4dB
+yaml	examples/.m8tmp-variant-b-uplink-micro-neg4.yaml
+started_utc	2026-04-29T09:33:42Z

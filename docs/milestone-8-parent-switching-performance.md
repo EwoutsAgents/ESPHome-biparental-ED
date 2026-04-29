@@ -301,8 +301,51 @@ Current conclusion: the parent-response callback fix successfully restored stand
 
 Recommended follow-up outside this milestone:
 
-1. Investigate why preferred-target switching misses despite confirmed standby discovery.
-2. Make a targeted tuning or control-path change to the preferred-switch path.
-3. Re-run the same four comparison scenarios before considering any deeper sweep (`-8dB`, `-12dB`, `-15dB`).
+1. Re-run the same four comparison scenarios on the updated best-effort preferred-parent-search path before considering any deeper sweep (`-8dB`, `-12dB`, `-15dB`).
+2. If preferred misses remain high, investigate whether OpenThread parent-search/backoff tuning can improve convergence without forcing disruptive generic reattach.
 
 With the current evidence, the correct closeout is a **negative result for the present policy revision**, not a claimed performance improvement.
+
+## Follow-up implementation: best-effort preferred parent search
+
+A targeted control-path fix was implemented after the comparison batch above.
+
+### Root cause confirmed
+
+The previous preferred path was only target-aware in the overlay policy and diagnostics layers:
+
+- `FailoverController` stored a preferred target RLOC16 and classified the eventual outcome as `success`, `miss`, or `timeout` based on the attached parent.
+- `CandidateManager` maintained the preferred standby candidate identity.
+- But `EspHomeOpenThreadPlatformAdapter::request_failover_to_preferred()` did **not** pass that target into OpenThread parent selection. It started `otThreadSearchForBetterParent()` and then immediately detached, so the actual next parent choice remained fully stack-controlled.
+
+### Implemented fix
+
+The preferred request path now behaves as a **best-effort preferred parent search**:
+
+- when already attached as a child and not already on the preferred parent, it starts `otThreadSearchForBetterParent()` and stays attached;
+- it no longer immediately detaches after starting that search;
+- existing Milestone 5 outcome handling is unchanged: success still requires exact attached parent RLOC16 match, while miss/timeout still fall back to generic reattach.
+
+### Limitation kept explicit
+
+Deterministic RLOC16 targeting is still not possible with the public OpenThread APIs used here:
+
+- `otThreadSearchForBetterParent()` has no target-RLOC16 argument;
+- public APIs expose parent search and attach state, but the final parent acceptance decision stays inside OpenThread.
+
+Because of that limitation, logs and docs now describe this path as **best-effort preferred parent search**, not deterministic preferred reattach.
+
+### Validation steps for this fix
+
+Host-side logic validation:
+
+- compile and run `tests/host/test_preferred_failover.cpp`
+- verifies preferred requests stay in search-without-detach mode while attached as a child;
+- verifies timeout/miss still trigger generic fallback;
+- verifies success still requires exact attached-parent RLOC16 match.
+
+ESPHome validation:
+
+- `scripts/milestone8-validate.sh`
+- `scripts/milestone8-validate.sh --compile`
+- additional component-bearing config validation/compile for `examples/link-degradation-ed.yaml`

@@ -55,8 +55,9 @@ Implication:
 ## ⚠️ What is partially feasible with public APIs
 
 1. **Preferred-parent biasing**
-   - Overlay can rank a preferred standby and decide when to trigger search/reattach.
-   - But exact parent selection internals are stack-owned; hard pinning a specific parent via public API is limited.
+   - Overlay can rank a preferred standby and decide when to trigger a best-effort preferred-parent search.
+   - But exact parent selection internals are stack-owned; hard pinning a specific parent RLOC16 via public API is not available.
+   - `otThreadSearchForBetterParent()` can search while the child stays attached, but it does not accept a target RLOC16 selector.
 
 2. **Fast failover latency floor**
    - Overlay can shorten trigger thresholds/timers and invoke search earlier.

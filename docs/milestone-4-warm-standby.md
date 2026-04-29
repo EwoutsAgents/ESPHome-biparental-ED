@@ -34,6 +34,7 @@ Implement continuous parent-health monitoring and warm-standby maintenance with 
 
 - Generic and preferred failover requests are wired through OT adapter calls.
 - Preferred path remains best-effort (Thread/OpenThread parent selection behavior).
+- Preferred requests can rank a target standby, but public OpenThread APIs still own the actual parent decision; there is no deterministic RLOC16 pinning path.
 
 ### Diagnostics / observability
 

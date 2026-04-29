@@ -162,7 +162,7 @@ There is no direct parent swap primitive here. The component triggers detach/rea
 
 ### Preferred parent selection is best-effort
 
-`request_failover_to_preferred()` records a target and may start `otThreadSearchForBetterParent()`, detach, and reattach. But the final parent choice remains OpenThread-controlled.
+`request_failover_to_preferred()` records a target and, when already attached as a child, now starts a best-effort `otThreadSearchForBetterParent()` without immediately detaching. The final parent choice still remains OpenThread-controlled.
 
 That means:
 

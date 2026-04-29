@@ -335,9 +335,9 @@ void BiparentalEDComponent::maybe_issue_failover_action_(uint32_t now_ms, const 
 
   if (action.type == FailoverActionType::TRIGGER_PREFERRED_REATTACH && standby_available) {
     const uint16_t target_rloc16 = action.preferred_target_rloc16 != 0xffff ? action.preferred_target_rloc16 : standby.rloc16;
-    ESP_LOGW(TAG, "Requesting preferred failover (target=0x%04x)", target_rloc16);
+    ESP_LOGW(TAG, "Requesting best-effort preferred parent search (target=0x%04x)", target_rloc16);
     if (!this->ot_adapter_->request_failover_to_preferred(target_rloc16)) {
-      ESP_LOGW(TAG, "Preferred failover request not yet implemented in OT adapter, falling back to generic flow");
+      ESP_LOGW(TAG, "Best-effort preferred parent search could not be started, falling back to generic reattach");
       this->ot_adapter_->request_failover_generic();
     }
     return;

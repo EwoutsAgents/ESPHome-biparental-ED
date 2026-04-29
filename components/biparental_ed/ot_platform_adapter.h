@@ -7,6 +7,40 @@
 namespace esphome {
 namespace biparental_ed {
 
+enum class PreferredFailoverRequestMode : uint8_t {
+  REJECT = 0,
+  ALREADY_ATTACHED = 1,
+  SEARCH_WHILE_ATTACHED = 2,
+  BECOME_CHILD = 3,
+  DETACH_AND_REATTACH = 4,
+};
+
+enum class PreferredFailoverRole : uint8_t {
+  DISABLED = 0,
+  DETACHED = 1,
+  CHILD = 2,
+  OTHER = 3,
+};
+
+inline PreferredFailoverRequestMode choose_preferred_failover_request_mode(PreferredFailoverRole role,
+                                                                           bool already_attached_to_preferred) {
+  switch (role) {
+    case PreferredFailoverRole::DISABLED:
+      return PreferredFailoverRequestMode::REJECT;
+
+    case PreferredFailoverRole::CHILD:
+      return already_attached_to_preferred ? PreferredFailoverRequestMode::ALREADY_ATTACHED
+                                           : PreferredFailoverRequestMode::SEARCH_WHILE_ATTACHED;
+
+    case PreferredFailoverRole::DETACHED:
+      return PreferredFailoverRequestMode::BECOME_CHILD;
+
+    case PreferredFailoverRole::OTHER:
+    default:
+      return PreferredFailoverRequestMode::DETACH_AND_REATTACH;
+  }
+}
+
 class OpenThreadPlatformAdapter {
  public:
   virtual ~OpenThreadPlatformAdapter() = default;

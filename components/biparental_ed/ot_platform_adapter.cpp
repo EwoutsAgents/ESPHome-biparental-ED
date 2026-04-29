@@ -20,6 +20,19 @@ static const char *const TAG = "biparental_ed.ot";
 #ifdef BIPARENTAL_ED_USE_OPENTHREAD
 using esphome::openthread::InstanceLock;
 
+static PreferredFailoverRole map_ot_role(otDeviceRole role) {
+  switch (role) {
+    case OT_DEVICE_ROLE_DISABLED:
+      return PreferredFailoverRole::DISABLED;
+    case OT_DEVICE_ROLE_DETACHED:
+      return PreferredFailoverRole::DETACHED;
+    case OT_DEVICE_ROLE_CHILD:
+      return PreferredFailoverRole::CHILD;
+    default:
+      return PreferredFailoverRole::OTHER;
+  }
+}
+
 static bool try_acquire_ot_lock(std::optional<InstanceLock> *lock, int delay_ms) {
   if (esphome::openthread::global_openthread_component == nullptr) {
     return false;
@@ -249,7 +262,7 @@ bool EspHomeOpenThreadPlatformAdapter::request_parent_search() {
 bool EspHomeOpenThreadPlatformAdapter::request_failover_to_preferred(uint16_t preferred_rloc16) {
 #ifdef BIPARENTAL_ED_USE_OPENTHREAD
   if (preferred_rloc16 == 0xffff || preferred_rloc16 == 0xfffe) {
-    ESP_LOGW(TAG, "Preferred failover request rejected: invalid preferred RLOC16=0x%04x", preferred_rloc16);
+    ESP_LOGW(TAG, "Best-effort preferred parent search rejected: invalid preferred RLOC16=0x%04x", preferred_rloc16);
     return false;
   }
 
@@ -263,52 +276,68 @@ bool EspHomeOpenThreadPlatformAdapter::request_failover_to_preferred(uint16_t pr
 
   otInstance *instance = lock->get_instance();
   const otDeviceRole role = otThreadGetDeviceRole(instance);
-  if (role == OT_DEVICE_ROLE_DISABLED) {
-    ESP_LOGW(TAG, "Preferred failover request failed: Thread is disabled");
-    return false;
-  }
-
+  bool already_attached_to_preferred = false;
   if (role == OT_DEVICE_ROLE_CHILD) {
     otRouterInfo parent_info{};
-    if (otThreadGetParentInfo(instance, &parent_info) == OT_ERROR_NONE && parent_info.mRloc16 == preferred_rloc16) {
-      ESP_LOGI(TAG, "Preferred failover request: already attached to preferred parent 0x%04x", preferred_rloc16);
+    already_attached_to_preferred =
+        otThreadGetParentInfo(instance, &parent_info) == OT_ERROR_NONE && parent_info.mRloc16 == preferred_rloc16;
+  }
+
+  switch (choose_preferred_failover_request_mode(map_ot_role(role), already_attached_to_preferred)) {
+    case PreferredFailoverRequestMode::REJECT:
+      ESP_LOGW(TAG, "Best-effort preferred parent search failed: Thread is disabled");
+      return false;
+
+    case PreferredFailoverRequestMode::ALREADY_ATTACHED:
+      ESP_LOGI(TAG, "Best-effort preferred parent search: already attached to preferred parent 0x%04x",
+               preferred_rloc16);
+      return true;
+
+    case PreferredFailoverRequestMode::SEARCH_WHILE_ATTACHED: {
+      const otError search_err = otThreadSearchForBetterParent(instance);
+      if (search_err != OT_ERROR_NONE) {
+        ESP_LOGW(TAG,
+                 "Best-effort preferred parent search could not start (target=0x%04x err=%d)",
+                 preferred_rloc16, static_cast<int>(search_err));
+        return false;
+      }
+
+      ESP_LOGI(TAG,
+               "Best-effort preferred parent search accepted (target=0x%04x, staying attached while OpenThread searches)",
+               preferred_rloc16);
       return true;
     }
 
-    const otError search_err = otThreadSearchForBetterParent(instance);
-    if (search_err == OT_ERROR_NONE) {
-      ESP_LOGI(TAG, "Preferred failover request: started better-parent search (target=0x%04x)", preferred_rloc16);
-    } else {
-      ESP_LOGD(TAG, "Preferred failover request: better-parent search start failed (target=0x%04x err=%d)",
-               preferred_rloc16, static_cast<int>(search_err));
-    }
-  }
-
-  if (role != OT_DEVICE_ROLE_DETACHED) {
+    case PreferredFailoverRequestMode::DETACH_AND_REATTACH: {
     const otError detach_err = otThreadBecomeDetached(instance);
     if (detach_err != OT_ERROR_NONE) {
-      ESP_LOGW(TAG, "Preferred failover detach failed (target=0x%04x): %d", preferred_rloc16,
+      ESP_LOGW(TAG, "Preferred parent search detach failed (target=0x%04x): %d", preferred_rloc16,
                static_cast<int>(detach_err));
       return false;
     }
 
-    ESP_LOGI(TAG, "Preferred failover request accepted (target=0x%04x, detaching)", preferred_rloc16);
-    return true;
+      ESP_LOGI(TAG, "Preferred parent search request accepted (target=0x%04x, detaching before reattach)",
+               preferred_rloc16);
+      return true;
+    }
+
+    case PreferredFailoverRequestMode::BECOME_CHILD:
+      break;
   }
 
   // Already detached: explicitly trigger child-attach attempt.
   const otError child_err = otThreadBecomeChild(instance);
   if (child_err != OT_ERROR_NONE) {
-    ESP_LOGW(TAG, "Preferred failover reattach failed (target=0x%04x): %d", preferred_rloc16,
+    ESP_LOGW(TAG, "Preferred parent search reattach failed (target=0x%04x): %d", preferred_rloc16,
              static_cast<int>(child_err));
     return false;
   }
 
-  ESP_LOGI(TAG, "Preferred failover request accepted (target=0x%04x, reattach as child)", preferred_rloc16);
+  ESP_LOGI(TAG, "Preferred parent search request accepted (target=0x%04x, reattach as child)", preferred_rloc16);
   return true;
 #else
   (void) preferred_rloc16;
-  ESP_LOGD(TAG, "Preferred failover request ignored: OpenThread not available");
+  ESP_LOGD(TAG, "Best-effort preferred parent search ignored: OpenThread not available");
   return false;
 #endif
 }

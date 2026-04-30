@@ -107,6 +107,22 @@ exit:
     ),
     (
         ROOT / "thread/mle.cpp",
+        """    SuccessOrExit(error = aRxInfo.mMessage.ReadAndMatchResponseTlvWith(mParentRequestChallenge));
+""",
+        """    error = aRxInfo.mMessage.ReadAndMatchResponseTlvWith(mParentRequestChallenge);
+    if (error != kErrorNone)
+    {
+        if (mMode == kSelectedParent)
+        {
+            LogWarn(\"SelectedParent response challenge mismatch err=%s keyseq=%lu frame=%lu\", ErrorToString(error),
+                    ToUlong(aRxInfo.mKeySequence), ToUlong(aRxInfo.mFrameCounter));
+        }
+        ExitNow();
+    }
+""",
+    ),
+    (
+        ROOT / "thread/mle.cpp",
         """    aRxInfo.mClass = RxInfo::kAuthoritativeMessage;
 
 #if OPENTHREAD_FTD

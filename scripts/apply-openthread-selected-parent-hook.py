@@ -139,6 +139,37 @@ exit:
     ),
     (
         ROOT / "thread/mle.cpp",
+        """        case kAnyPartition:
+        case kSamePartition:
+        case kDowngradeToReed:
+        case kBetterParent:
+        case kSelectedParent:
+            // Ensure that a Parent Response was received from the
+            // current parent to which the device is attached, so
+            // that the new parent candidate can be compared with the
+            // current parent and confirmed to be preferred.
+            VerifyOrExit(mReceivedResponseFromParent);
+            break;
+""",
+        """        case kAnyPartition:
+        case kSamePartition:
+        case kDowngradeToReed:
+        case kBetterParent:
+            // Ensure that a Parent Response was received from the
+            // current parent to which the device is attached, so
+            // that the new parent candidate can be compared with the
+            // current parent and confirmed to be preferred.
+            VerifyOrExit(mReceivedResponseFromParent);
+            break;
+
+        case kSelectedParent:
+            // In selected-parent mode we already constrain attach to
+            // the explicitly requested candidate.
+            break;
+""",
+    ),
+    (
+        ROOT / "thread/mle.cpp",
         """void Mle::Attacher::HandleChildIdRequestTxDone(const Message &aMessage)
 {
     if (aMessage.GetTxSuccess() && !Get<Mle>().IsRxOnWhenIdle())

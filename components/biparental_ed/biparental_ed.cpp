@@ -22,7 +22,7 @@ static void parent_response_callback(otThreadParentResponseInfo *info, void *con
   }
   auto *self = static_cast<BiparentalEDComponent *>(context);
   self->observe_parent_response_(info->mRloc16, info->mRssi, info->mLinkQuality3, info->mLinkQuality2,
-                                 info->mLinkQuality1, info->mIsAttached);
+                                 info->mLinkQuality1, info->mIsAttached, info->mExtAddr.m8);
 }
 #endif
 
@@ -288,7 +288,7 @@ void BiparentalEDComponent::maybe_scan_neighbors_(uint32_t now_ms) {
 
 void BiparentalEDComponent::observe_parent_response_(uint16_t rloc16, int8_t rssi, uint8_t link_quality_3,
                                                      uint8_t link_quality_2, uint8_t link_quality_1,
-                                                     bool is_attached) {
+                                                     bool is_attached, const uint8_t *ext_address) {
   if (rloc16 == 0xffff || rloc16 == 0xfffe) {
     return;
   }
@@ -298,7 +298,8 @@ void BiparentalEDComponent::observe_parent_response_(uint16_t rloc16, int8_t rss
   // callback-derived candidates without depending on the MTD neighbor table.
   const uint8_t link_margin = static_cast<uint8_t>((link_quality_3 * 10U) + (link_quality_2 * 6U) +
                                                   (link_quality_1 * 3U));
-  this->candidate_manager_.observe_parent_response(millis(), rloc16, static_cast<int8_t>(link_margin), rssi);
+  this->candidate_manager_.observe_parent_response(millis(), rloc16, static_cast<int8_t>(link_margin), rssi,
+                                                   ext_address);
 }
 
 void BiparentalEDComponent::maybe_trigger_parent_search_refresh_(uint32_t now_ms) {
@@ -335,10 +336,22 @@ void BiparentalEDComponent::maybe_issue_failover_action_(uint32_t now_ms, const 
 
   if (action.type == FailoverActionType::TRIGGER_PREFERRED_REATTACH && standby_available) {
     const uint16_t target_rloc16 = action.preferred_target_rloc16 != 0xffff ? action.preferred_target_rloc16 : standby.rloc16;
-    ESP_LOGW(TAG, "Requesting best-effort preferred parent search (target=0x%04x)", target_rloc16);
-    if (!this->ot_adapter_->request_failover_to_preferred(target_rloc16)) {
-      ESP_LOGW(TAG, "Best-effort preferred parent search could not be started, falling back to generic reattach");
+    char ext_buf[3 * 8] = {0};
+    if (standby.has_ext_address) {
+      snprintf(ext_buf, sizeof(ext_buf), "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", standby.ext_address[0],
+               standby.ext_address[1], standby.ext_address[2], standby.ext_address[3], standby.ext_address[4],
+               standby.ext_address[5], standby.ext_address[6], standby.ext_address[7]);
+    } else {
+      snprintf(ext_buf, sizeof(ext_buf), "unknown");
+    }
+    ESP_LOGW(TAG, "Requesting targeted standby attach target_rloc16=0x%04x target_ext=%s", target_rloc16, ext_buf);
+    if (!this->ot_adapter_->request_failover_to_standby_target(target_rloc16,
+                                                                standby.has_ext_address ? standby.ext_address.data()
+                                                                                        : nullptr)) {
+      ESP_LOGW(TAG, "Targeted standby attach could not be started, falling back to generic reattach");
       this->ot_adapter_->request_failover_generic();
+    } else {
+      ESP_LOGI(TAG, "Targeted standby attach accepted");
     }
     return;
   }
@@ -346,7 +359,7 @@ void BiparentalEDComponent::maybe_issue_failover_action_(uint32_t now_ms, const 
   if (action.type == FailoverActionType::TRIGGER_GENERIC_REATTACH) {
     if (action.reason == FailoverActionReason::PREFERRED_MISS || action.reason == FailoverActionReason::PREFERRED_TIMEOUT) {
       ESP_LOGW(TAG,
-               "Preferred search outcome=%s target=0x%04x attached=0x%04x -> action=generic_reattach",
+               "Targeted standby outcome=%s target=0x%04x attached=0x%04x -> action=generic_reattach",
                action.reason == FailoverActionReason::PREFERRED_MISS ? "miss" : "timeout",
                action.preferred_target_rloc16,
                action.attached_parent_rloc16);
@@ -365,7 +378,7 @@ void BiparentalEDComponent::maybe_log_preferred_outcome_() {
 
   this->last_logged_preferred_outcome_event_count_ = event_count;
   ESP_LOGI(TAG,
-           "Preferred search outcome=%s target=0x%04x attached=0x%04x -> result_state=%u",
+           "Targeted standby outcome=%s target=0x%04x attached=0x%04x -> result_state=%u",
            preferred_outcome_to_cstr(this->failover_controller_.preferred_last_outcome()),
            this->failover_controller_.preferred_last_target_rloc16(),
            this->failover_controller_.preferred_last_attached_parent_rloc16(),

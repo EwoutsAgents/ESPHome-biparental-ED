@@ -55,11 +55,11 @@ Diagnostics include:
 
 On each preferred outcome event:
 
-- `Preferred search outcome=<success|miss|timeout> target=0x.... attached=0x.... -> result_state=<...>`
+- `Targeted standby outcome=<success|miss|timeout> target=0x.... attached=0x.... -> result_state=<...>`
 
 On miss/timeout fallback action:
 
-- `Preferred search outcome=<miss|timeout> target=0x.... attached=0x.... -> action=generic_reattach`
+- `Targeted standby outcome=<miss|timeout> target=0x.... attached=0x.... -> action=generic_reattach`
 
 These lines provide single-capture proof of preferred intent target, attached parent at decision time, outcome, and resulting transition/action.
 
@@ -91,15 +91,15 @@ Evidence log: `/tmp/m5-hw-ed.log`
 Observed preferred outcomes in hardware logs:
 
 - **Miss**
-  - `[12:58:56.069] Preferred search outcome=miss target=0x5400 attached=0xc800 -> result_state=7`
-  - `[12:58:56.080] Preferred search outcome=miss ... -> action=generic_reattach`
+  - `[12:58:56.069] Targeted standby outcome=miss target=0x5400 attached=0xc800 -> result_state=7`
+  - `[12:58:56.080] Targeted standby outcome=miss ... -> action=generic_reattach`
 
 - **Success**
-  - `[12:59:17.064] Preferred search outcome=success target=0x5400 attached=0x5400 -> result_state=8`
+  - `[12:59:17.064] Targeted standby outcome=success target=0x5400 attached=0x5400 -> result_state=8`
 
 - **Timeout**
-  - `[13:01:10.167] Preferred search outcome=timeout target=0xc800 attached=0xffff -> result_state=7`
-  - `[13:01:10.178] Preferred search outcome=timeout ... -> action=generic_reattach`
+  - `[13:01:10.167] Targeted standby outcome=timeout target=0xc800 attached=0xffff -> result_state=7`
+  - `[13:01:10.178] Targeted standby outcome=timeout ... -> action=generic_reattach`
 
 Counter/state consistency observed in diagnostics around those events:
 

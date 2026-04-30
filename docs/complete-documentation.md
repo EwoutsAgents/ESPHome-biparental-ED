@@ -162,7 +162,7 @@ There is no direct parent swap primitive here. The component triggers detach/rea
 
 ### Preferred parent selection is best-effort
 
-`request_failover_to_preferred()` records a target and, when already attached as a child, now starts a best-effort `otThreadSearchForBetterParent()` without immediately detaching. The final parent choice still remains OpenThread-controlled.
+`request_failover_to_standby_target()` issues a targeted standby attach request using standby extended address through an isolated private-hook boundary. The fallback remains generic reattach when the targeted request cannot be started or does not succeed in time.
 
 That means:
 
@@ -483,9 +483,9 @@ Useful lines documented by the implementation and milestone logs include:
 - `OpenThread detected; enabling runtime adapter`
 - `runtime: got_metrics=...`
 - `Triggered OpenThread better-parent search refresh`
-- `Requesting best-effort preferred parent search (target=0x....)`
-- `Preferred search outcome=success|miss|timeout target=... attached=... -> result_state=...`
-- `Preferred search outcome=miss|timeout ... -> action=generic_reattach`
+- `Requesting targeted standby attach target_rloc16=0x.... target_ext=...`
+- `Targeted standby outcome=success|miss|timeout target=... attached=... -> result_state=...`
+- `Targeted standby outcome=miss|timeout ... -> action=generic_reattach`
 
 Diagnostic snapshots include:
 
@@ -517,11 +517,11 @@ Evidence reference in docs: `/tmp/biparental-ed-validation-8.log`
 Validation documented three preferred outcomes on hardware:
 
 - **miss**
-  - `Preferred search outcome=miss target=0x5400 attached=0xc800 -> result_state=7`
+  - `Targeted standby outcome=miss target=0x5400 attached=0xc800 -> result_state=7`
 - **success**
-  - `Preferred search outcome=success target=0x5400 attached=0x5400 -> result_state=8`
+  - `Targeted standby outcome=success target=0x5400 attached=0x5400 -> result_state=8`
 - **timeout**
-  - `Preferred search outcome=timeout target=0xc800 attached=0xffff -> result_state=7`
+  - `Targeted standby outcome=timeout target=0xc800 attached=0xffff -> result_state=7`
 
 Milestone 5 also reports:
 
@@ -541,7 +541,7 @@ Documented as implemented, with:
 
 Closeout passed with fresh timeout-specific evidence:
 
-- `Preferred search outcome=timeout ...`
+- `Targeted standby outcome=timeout ...`
 - `entity.last_failover_reason=preferred_timeout`
 
 Milestone 7 also records that direct `esptool` flashing was used successfully when `esphome upload` was intermittently unreliable.
@@ -699,7 +699,7 @@ Deliverable:
 Outcome:
 
 - Timeout closeout criteria captured on fresh hardware logs:
-  - `Preferred search outcome=timeout`
+  - `Targeted standby outcome=timeout`
   - `entity.last_failover_reason=preferred_timeout`
 
 ### Milestone 8 — Parent Switching Performance Comparison (completed, negative result)

@@ -20,6 +20,10 @@ static const char *const TAG = "biparental_ed.ot";
 #ifdef BIPARENTAL_ED_USE_OPENTHREAD
 using esphome::openthread::InstanceLock;
 
+extern "C" bool biparental_ot_request_selected_parent_attach(otInstance *instance,
+                                                               const otExtAddress *preferred_ext_address)
+    __attribute__((weak));
+
 static PreferredFailoverRole map_ot_role(otDeviceRole role) {
   switch (role) {
     case OT_DEVICE_ROLE_DISABLED:
@@ -255,6 +259,52 @@ bool EspHomeOpenThreadPlatformAdapter::request_parent_search() {
   }
   return true;
 #else
+  return false;
+#endif
+}
+
+bool EspHomeOpenThreadPlatformAdapter::request_failover_to_standby_target(uint16_t preferred_rloc16,
+                                                                           const uint8_t *preferred_ext_address) {
+#ifdef BIPARENTAL_ED_USE_OPENTHREAD
+  if (preferred_rloc16 == 0xffff || preferred_rloc16 == 0xfffe) {
+    ESP_LOGW(TAG, "Targeted standby attach rejected: invalid preferred RLOC16=0x%04x", preferred_rloc16);
+    return false;
+  }
+  if (preferred_ext_address == nullptr) {
+    ESP_LOGW(TAG, "Targeted standby attach rejected: missing preferred extended address (target=0x%04x)",
+             preferred_rloc16);
+    return false;
+  }
+
+  std::optional<InstanceLock> lock;
+  if (!try_acquire_ot_lock(&lock, 100)) {
+    if (!acquire_ot_lock_blocking(&lock)) {
+      ESP_LOGW(TAG, "Targeted standby attach failed: OT lock unavailable");
+      return false;
+    }
+  }
+
+  if (biparental_ot_request_selected_parent_attach == nullptr) {
+    ESP_LOGW(TAG,
+             "Targeted standby attach unavailable: missing OpenThread selected-parent hook (no public API for attach-to-parent)");
+    return false;
+  }
+
+  otExtAddress ext{};
+  for (size_t i = 0; i < sizeof(ext.m8); i++) {
+    ext.m8[i] = preferred_ext_address[i];
+  }
+
+  if (!biparental_ot_request_selected_parent_attach(lock->get_instance(), &ext)) {
+    ESP_LOGW(TAG, "Targeted standby attach hook rejected request (target=0x%04x)", preferred_rloc16);
+    return false;
+  }
+
+  return true;
+#else
+  (void) preferred_rloc16;
+  (void) preferred_ext_address;
+  ESP_LOGD(TAG, "Targeted standby attach ignored: OpenThread not available");
   return false;
 #endif
 }

@@ -10,7 +10,8 @@ int8_t CandidateManager::compute_score_(int8_t link_margin, int8_t rssi) {
   return static_cast<int8_t>(link_margin + (rssi / 2));
 }
 
-void CandidateManager::observe_parent_response(uint32_t now_ms, uint16_t rloc16, int8_t link_margin, int8_t rssi) {
+void CandidateManager::observe_parent_response(uint32_t now_ms, uint16_t rloc16, int8_t link_margin, int8_t rssi,
+                                               const uint8_t *ext_address) {
   if (rloc16 == this->active_parent_rloc16_) {
     return;
   }
@@ -23,6 +24,12 @@ void CandidateManager::observe_parent_response(uint32_t now_ms, uint16_t rloc16,
     this->standby_candidate_.rssi = rssi;
     this->standby_candidate_.score = score;
     this->standby_candidate_.last_refresh_ms = now_ms;
+    if (ext_address != nullptr) {
+      for (std::size_t i = 0; i < this->standby_candidate_.ext_address.size(); i++) {
+        this->standby_candidate_.ext_address[i] = ext_address[i];
+      }
+      this->standby_candidate_.has_ext_address = true;
+    }
     return;
   }
 
@@ -39,6 +46,12 @@ void CandidateManager::observe_parent_response(uint32_t now_ms, uint16_t rloc16,
   this->standby_candidate_.rssi = rssi;
   this->standby_candidate_.score = score;
   this->standby_candidate_.last_refresh_ms = now_ms;
+  this->standby_candidate_.has_ext_address = ext_address != nullptr;
+  if (ext_address != nullptr) {
+    for (std::size_t i = 0; i < this->standby_candidate_.ext_address.size(); i++) {
+      this->standby_candidate_.ext_address[i] = ext_address[i];
+    }
+  }
 }
 
 void CandidateManager::observe_router_neighbor(uint32_t now_ms, uint16_t rloc16, int8_t link_margin,
@@ -66,6 +79,7 @@ void CandidateManager::mark_failover_complete(uint32_t now_ms, uint16_t new_acti
     this->standby_candidate_.rssi = -127;
     this->standby_candidate_.score = compute_score_(this->standby_candidate_.link_margin, this->standby_candidate_.rssi);
     this->standby_candidate_.last_refresh_ms = now_ms;
+    this->standby_candidate_.has_ext_address = false;
   }
 }
 

@@ -23,7 +23,7 @@ class BiparentalEDComponent : public PollingComponent {
   void update() override;
   void dump_config() override;
   void observe_parent_response_(uint16_t rloc16, int8_t rssi, uint8_t link_quality_3, uint8_t link_quality_2,
-                                uint8_t link_quality_1, bool is_attached);
+                                uint8_t link_quality_1, bool is_attached, const uint8_t *ext_address);
 
   void set_degraded_rssi_threshold(int value) { this->degraded_rssi_threshold_ = value; }
   void set_hard_failure_timeout_ms(uint32_t value) { this->hard_failure_timeout_ms_ = value; }

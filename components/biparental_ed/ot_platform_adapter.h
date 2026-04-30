@@ -59,6 +59,7 @@ class OpenThreadPlatformAdapter {
   using RouterNeighborCallback = void (*)(void *context, const RouterNeighborInfo &info);
   virtual bool read_router_neighbors(RouterNeighborCallback cb, void *context) = 0;
   virtual bool request_parent_search() = 0;
+  virtual bool request_failover_to_standby_target(uint16_t preferred_rloc16, const uint8_t *preferred_ext_address) = 0;
   virtual bool request_failover_to_preferred(uint16_t preferred_rloc16) = 0;
   virtual bool request_failover_generic() = 0;
 };
@@ -87,6 +88,7 @@ class NoopOpenThreadPlatformAdapter : public OpenThreadPlatformAdapter {
   bool read_router_neighbors(RouterNeighborCallback, void *) override { return false; }
 
   bool request_parent_search() override { return false; }
+  bool request_failover_to_standby_target(uint16_t, const uint8_t *) override { return false; }
   bool request_failover_to_preferred(uint16_t) override { return false; }
   bool request_failover_generic() override { return false; }
 };
@@ -97,6 +99,7 @@ class EspHomeOpenThreadPlatformAdapter : public OpenThreadPlatformAdapter {
   bool read_parent_metrics(ParentMetrics *metrics) override;
   bool read_router_neighbors(RouterNeighborCallback cb, void *context) override;
   bool request_parent_search() override;
+  bool request_failover_to_standby_target(uint16_t preferred_rloc16, const uint8_t *preferred_ext_address) override;
   bool request_failover_to_preferred(uint16_t preferred_rloc16) override;
   bool request_failover_generic() override;
 };

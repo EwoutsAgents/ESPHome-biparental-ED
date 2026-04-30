@@ -301,39 +301,43 @@ Current conclusion: the parent-response callback fix successfully restored stand
 
 Recommended follow-up outside this milestone:
 
-1. Re-run the same four comparison scenarios on the updated best-effort preferred-parent-search path before considering any deeper sweep (`-8dB`, `-12dB`, `-15dB`).
+1. Re-run the same four comparison scenarios on the updated targeted-standby-attach path before considering any deeper sweep (`-8dB`, `-12dB`, `-15dB`).
 2. If preferred misses remain high, investigate whether OpenThread parent-search/backoff tuning can improve convergence without forcing disruptive generic reattach.
 
 With the current evidence, the correct closeout is a **negative result for the present policy revision**, not a claimed performance improvement.
 
-## Follow-up implementation: best-effort preferred parent search
+## Follow-up implementation: targeted standby attach boundary
 
-A targeted control-path fix was implemented after the comparison batch above.
+After the comparison batch, the standby-switch path was updated to reflect the real control boundary.
 
 ### Root cause confirmed
 
-The previous preferred path was only target-aware in the overlay policy and diagnostics layers:
+The previous preferred path was only target-aware in the overlay policy/diagnostics layer, while the actual attach request still used public generic APIs.
 
-- `FailoverController` stored a preferred target RLOC16 and classified the eventual outcome as `success`, `miss`, or `timeout` based on the attached parent.
-- `CandidateManager` maintained the preferred standby candidate identity.
-- But `EspHomeOpenThreadPlatformAdapter::request_failover_to_preferred()` did **not** pass that target into OpenThread parent selection. It started `otThreadSearchForBetterParent()` and then immediately detached, so the actual next parent choice remained fully stack-controlled.
+### Updated implementation direction
 
-### Implemented fix
+The standby path now carries both:
 
-The preferred request path now behaves as a **best-effort preferred parent search**:
+- target standby `RLOC16` (intent + outcome comparison), and
+- target standby extended address (`otExtAddress`) captured from `otThreadParentResponseInfo`.
 
-- when already attached as a child and not already on the preferred parent, it starts `otThreadSearchForBetterParent()` and stays attached;
-- it no longer immediately detaches after starting that search;
-- existing Milestone 5 outcome handling is unchanged: success still requires exact attached parent RLOC16 match, while miss/timeout still fall back to generic reattach.
+At failover trigger, the component now requests a **targeted standby attach** and logs:
 
-### Limitation kept explicit
+- `Requesting targeted standby attach target_rloc16=0x.... target_ext=...`
+- `Targeted standby attach accepted`
 
-Deterministic RLOC16 targeting is still not possible with the public OpenThread APIs used here:
+Outcome classification remains unchanged in policy terms:
 
-- `otThreadSearchForBetterParent()` has no target-RLOC16 argument;
-- public APIs expose parent search and attach state, but the final parent acceptance decision stays inside OpenThread.
+- `Targeted standby outcome=success|miss|timeout`
+- miss/timeout still fall back to generic reattach.
 
-Because of that limitation, logs and docs now describe this path as **best-effort preferred parent search**, not deterministic preferred reattach.
+### Explicit OpenThread API boundary
+
+Public OpenThread APIs still do not expose "attach to this exact parent". The targeted path therefore uses an isolated private-hook boundary in the adapter (`biparental_ot_request_selected_parent_attach(...)`) to integrate with OpenThread internal selected-parent attach behavior.
+
+If that hook is not available in the current OpenThread build, targeted standby attach is reported unavailable and the controller falls back to generic reattach.
+
+This keeps the limitation explicit: true fast standby switching requires OpenThread selected-parent/internal integration, not only `otThreadSearchForBetterParent()`.
 
 ### Validation steps for this fix
 

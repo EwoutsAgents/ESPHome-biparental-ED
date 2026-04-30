@@ -83,3 +83,4 @@ biparental_ed:
 - Complete reference: [`docs/complete-documentation.md`](docs/complete-documentation.md)
 - Milestone history + roadmap: [`docs/complete-documentation.md#11-milestone-history-and-roadmap-moved-from-readme`](docs/complete-documentation.md#11-milestone-history-and-roadmap-moved-from-readme)
 - Detailed milestone notes: `docs/milestone-*.md`
+- OpenThread selected-parent hook notes: [`docs/openthread-selected-parent-hook.md`](docs/openthread-selected-parent-hook.md)

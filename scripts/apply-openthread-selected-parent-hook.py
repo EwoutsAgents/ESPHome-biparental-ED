@@ -139,6 +139,41 @@ exit:
     ),
     (
         ROOT / "thread/mle.cpp",
+        """    VerifyOrExit(aRxInfo.IsNeighborStateValid(), error = kErrorSecurity);
+
+    VerifyOrExit(mState == kStateChildIdRequest);
+""",
+        """    if ((mMode == kSelectedParent) && !aRxInfo.IsNeighborStateValid())
+    {
+        LogWarn(\"SelectedParent ChildIdResponse neighbor invalid src=0x%04x keyseq=%lu frame=%lu\", sourceAddress,
+                ToUlong(aRxInfo.mKeySequence), ToUlong(aRxInfo.mFrameCounter));
+        ExitNow(error = kErrorSecurity);
+    }
+
+    VerifyOrExit(aRxInfo.IsNeighborStateValid(), error = kErrorSecurity);
+
+    VerifyOrExit(mState == kStateChildIdRequest);
+""",
+    ),
+    (
+        ROOT / "thread/mle.cpp",
+        """exit:
+    LogProcessError(kTypeChildIdResponse, error);
+}
+""",
+        """exit:
+    if ((error != kErrorNone) && (mMode == kSelectedParent))
+    {
+        LogWarn(\"SelectedParent ChildIdResponse reject err=%s src=0x%04x short=0x%04x\", ErrorToString(error),
+                sourceAddress, shortAddress);
+    }
+
+    LogProcessError(kTypeChildIdResponse, error);
+}
+""",
+    ),
+    (
+        ROOT / "thread/mle.cpp",
         """exit:
     LogProcessError(kTypeParentResponse, error);
 }

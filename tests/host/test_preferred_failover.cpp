@@ -29,6 +29,16 @@ bool test_preferred_request_stays_attached() {
                 "attached child should use search-without-detach for preferred request");
 }
 
+bool test_preferred_request_mode_matrix() {
+  const auto detached = choose_preferred_failover_request_mode(PreferredFailoverRole::DETACHED, false);
+  const auto other = choose_preferred_failover_request_mode(PreferredFailoverRole::OTHER, false);
+
+  return expect(detached == PreferredFailoverRequestMode::BECOME_CHILD,
+                "detached role should become child for preferred attach") &&
+         expect(other == PreferredFailoverRequestMode::DETACH_AND_REATTACH,
+                "non-child role should detach+reattach for preferred attach");
+}
+
 bool test_preferred_candidate_passed_as_intent_target() {
   FailoverController controller;
   controller.set_hold_down_time_ms(0);
@@ -125,6 +135,7 @@ bool test_preferred_success_requires_exact_parent_match() {
 int main() {
   bool ok = true;
   ok = test_preferred_request_stays_attached() && ok;
+  ok = test_preferred_request_mode_matrix() && ok;
   ok = test_preferred_candidate_passed_as_intent_target() && ok;
   ok = test_preferred_timeout_falls_back_to_generic() && ok;
   ok = test_preferred_success_requires_exact_parent_match() && ok;

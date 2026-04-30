@@ -49,10 +49,28 @@ At runtime, targeted flow logs should include:
 - `Targeted standby attach accepted`
 - OpenThread debug lines from the added instrumentation:
   - `SelectedParent ParentResponse rx src=...`
-  - `SelectedParent ParentResponse reject err=...`
+  - `SelectedParent ChildIdRequest sent cand=...`
+  - `SelectedParent ChildIdResponse accepted parent=... child=...`
+  - `SelectedParent ParentResponse reject err=...` (only on failure)
+  - `SelectedParent ChildIdRequest timed out cand=...` (failure path)
 
 If the hook is absent, logs show:
 
 - `Targeted standby attach unavailable: missing OpenThread selected-parent hook ...`
 
 and fallback generic reattach is used.
+
+## Milestone-8 root cause and fix summary
+
+- **Root cause**: selected-parent attach could receive/accept Parent Response but still never send ChildIdRequest.
+- **Why**: `HasAcceptableParentCandidate()` required `mReceivedResponseFromParent` for `kSelectedParent` while already attached as child, causing candidate gating to fail in this mode.
+- **Fix**: bypass that `mReceivedResponseFromParent` gate specifically for `kSelectedParent` (keep it for other attach modes).
+
+## Evidence
+
+- Pre-fix debug run showed `SelectedParent ParentResponse accepted ...` followed by timer state with `has_candidate=0` and eventual ChildId timeout.
+- Post-fix run `artifacts/milestone-8/targeted-hook-smoke/run-011-selected-parent-gate-bypass.log` shows:
+  - ParentResponse accepted,
+  - ChildIdRequest sent in selected-parent mode,
+  - ChildIdResponse accepted,
+  - targeted standby outcome success.

@@ -271,3 +271,34 @@ These post-fix spot-checks confirm two things at once:
 2. the original Milestone 8 practical issue is **not yet resolved on hardware** — the preferred attempts exercised in this follow-up still ended as `miss` and recovered through generic reattach.
 
 The ED was restored to the nominal Variant B image after the micro-batch.
+
+## Scenario C longer-repeat ramp-down update (2026-04-30)
+
+Additional Scenario C active-parent ramp-down runs were captured and summarized for:
+
+- `-4dB` (runs `004-006`)
+- `-8dB` (runs `007-008`)
+- `-12dB` (runs `009-010`)
+- `-15dB` (runs `011-012`)
+
+Key generated artifacts:
+
+- `artifacts/milestone-8/generated/trial-summary.csv`
+- `artifacts/milestone-8/generated/trial-summary.md`
+- `artifacts/milestone-8/generated/scenario-c-cross-step-summary.md`
+- `artifacts/milestone-8/generated/scenario-c-clean-runs-summary.md`
+
+Clean-run summary (longer-repeat batches only):
+
+| step | variant | n | standby_yes mean/med | targeted_req mean/med | targeted_success mean/med | targeted_miss mean/med | fallback mean/med |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| -4dB | A | 3 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 |
+| -4dB | B | 3 | 36.67/36 | 2.67/3 | 1.33/1 | 2.00/2 | 1.00/1 |
+| -8dB | A | 2 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 |
+| -8dB | B | 2 | 32.00/32 | 1.50/2 | 1.00/1 | 1.00/1 | 1.00/1 |
+| -12dB | A | 2 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 |
+| -12dB | B | 2 | 42.00/42 | 3.00/3 | 2.00/2 | 2.00/2 | 1.00/1 |
+| -15dB | A | 2 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 |
+| -15dB | B | 2 | 35.00/35 | 2.00/2 | 1.00/1 | 2.00/2 | 1.00/1 |
+
+Descriptive takeaway: Variant B continues to show standby discovery and targeted activity across deeper active-parent TX reductions, with mixed targeted outcomes and frequent generic fallback; Variant A parsed Scenario C failover/targeted fields remain near zero in these captures.

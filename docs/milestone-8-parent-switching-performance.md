@@ -482,3 +482,45 @@ This follow-up hardware evidence sharpens the conclusion:
 - however, the **practical Milestone 8 issue is not yet solved** in this setup — the exercised preferred attempts still resolved as `miss`, with recovery continuing through generic reattach.
 
 So the code change corrected the preferred-search mechanics, but it did not yet produce a demonstrated preferred-target switching win on hardware.
+
+## Scenario C ramp-down batch update (longer repeats)
+
+Date: 2026-04-30
+
+A longer Scenario C run set was completed at active-parent TX levels `-4dB`, `-8dB`, `-12dB`, `-15dB` using repeated A/B captures.
+
+Primary artifacts:
+
+- `artifacts/milestone-8/active-parent-ramp-down/`
+- `artifacts/milestone-8/generated/trial-summary.csv`
+- `artifacts/milestone-8/generated/trial-summary.md`
+- `artifacts/milestone-8/generated/scenario-c-cross-step-summary.md`
+- `artifacts/milestone-8/generated/scenario-c-clean-runs-summary.md`
+
+Included runs for this longer-repeat batch:
+
+- `-4dB`: A/B runs `004-006`
+- `-8dB`: A/B runs `007-008`
+- `-12dB`: A/B runs `009-010`
+- `-15dB`: A/B runs `011-012`
+
+### Clean-run cross-step summary (longer repeats only)
+
+| step | variant | n | standby_yes mean/med | standby_no mean/med | targeted_req mean/med | targeted_success mean/med | targeted_miss mean/med | fallback mean/med |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| -4dB | A | 3 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 |
+| -4dB | B | 3 | 36.67/36 | 13.33/13 | 2.67/3 | 1.33/1 | 2.00/2 | 1.00/1 |
+| -8dB | A | 2 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 |
+| -8dB | B | 2 | 32.00/32 | 13.00/13 | 1.50/2 | 1.00/1 | 1.00/1 | 1.00/1 |
+| -12dB | A | 2 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 |
+| -12dB | B | 2 | 42.00/42 | 12.00/12 | 3.00/3 | 2.00/2 | 2.00/2 | 1.00/1 |
+| -15dB | A | 2 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 |
+| -15dB | B | 2 | 35.00/35 | 14.50/14 | 2.00/2 | 1.00/1 | 2.00/2 | 1.00/1 |
+
+### Observed pattern (descriptive only)
+
+- Variant A parsed fields remain near-zero across these Scenario C ramp-down captures.
+- Variant B repeatedly shows standby visibility, targeted request activity, and mixed targeted outcomes with generic fallback commonly used.
+- At lower TX levels, Variant B behavior remains active but variable run-to-run (success and miss both present).
+
+Interpretation boundary remains unchanged: these results are promising for behavior characterization, but they are not sufficient for a performance claim without broader repeated A/C vs B/C statistics and pre-declared statistical criteria.

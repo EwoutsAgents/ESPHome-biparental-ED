@@ -3,7 +3,7 @@ set -euo pipefail
 
 if [[ $# -lt 6 ]]; then
   cat >&2 <<'USAGE'
-Usage: scripts/milestone8-log-trial.sh <variant> <scenario> <run_id> <router_power> <ed_power> <yaml> [device]
+Usage: scripts/milestone8-log-trial.sh <variant> <scenario> <run_id> <router_power> <ed_power> <yaml> [device] [active_parent_id] [active_parent_tx] [standby_router_tx]
 
 Captures a timestamped ESPHome log for one approved Milestone 8 trial.
 This script does not flash firmware. Build/flash fixed-power images separately before trial collection.
@@ -21,6 +21,9 @@ router_power="$4"
 ed_power="$5"
 yaml="$6"
 device="${7:-}"
+active_parent_id="${8:-unknown}"
+active_parent_tx="${9:-${router_power}}"
+standby_router_tx="${10:-${router_power}}"
 
 ESPHOME_BIN="${ESPHOME_BIN:-esphome}"
 root="$(cd "$(dirname "$0")/.." && pwd)"
@@ -36,6 +39,9 @@ log="${out_dir}/${stem}.log"
   printf 'run_id\t%s\n' "${run_id}"
   printf 'router_output_power\t%s\n' "${router_power}"
   printf 'ed_output_power\t%s\n' "${ed_power}"
+  printf 'active_parent_router_id\t%s\n' "${active_parent_id}"
+  printf 'active_parent_tx_power\t%s\n' "${active_parent_tx}"
+  printf 'standby_router_tx_power\t%s\n' "${standby_router_tx}"
   printf 'yaml\t%s\n' "${yaml}"
   printf 'started_utc\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 } | tee "${meta}"

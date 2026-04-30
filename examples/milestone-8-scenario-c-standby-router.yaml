@@ -1,0 +1,9 @@
+substitutions:
+  devicename: m8-standby-router
+  friendly: "Milestone 8 Scenario C Standby Router"
+  # Scenario C keeps standby routers nominal while active-parent TX ramps down.
+  thread_output_power: "8dB"
+
+packages:
+  base: !include hwtest-router.yaml
+  tx_power_degradation: !include tx-power-degradation.yaml

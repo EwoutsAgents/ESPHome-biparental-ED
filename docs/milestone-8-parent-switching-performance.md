@@ -354,6 +354,59 @@ ESPHome validation:
 - `scripts/milestone8-validate.sh --compile`
 - additional component-bearing config validation/compile for `examples/link-degradation-ed.yaml`
 - additional config/compile for `examples/milestone-8-variant-b-search-refresh.yaml`
+- config/compile checks for Scenario C router configs:
+  - `examples/milestone-8-scenario-c-active-parent-router.yaml`
+  - `examples/milestone-8-scenario-c-standby-router.yaml`
+
+## Scenario C — active-parent TX ramp-down
+
+Scenario C is a Milestone 8 scenario (not a new firmware variant):
+
+- Variant A = default OpenThread reference ED
+- Variant B = biparental ED / targeted standby attach ED
+
+Scenario goal: isolate behavior when only the **current active parent** degrades while standby routers stay healthy.
+
+Scenario definition:
+
+1. Start attached to active parent P1.
+2. Confirm Variant B has standby candidate P2/P3.
+3. Keep ED TX fixed.
+4. Keep standby router TX fixed at nominal.
+5. Step only active parent TX: `8dB -> 4dB -> 0dB -> -4dB -> -8dB -> -12dB -> -15dB`.
+6. Capture both A and B runs at each step under same placement and dataset.
+
+Artifacts:
+
+- `artifacts/milestone-8/active-parent-ramp-down/`
+
+Required metadata per run:
+
+- active parent router identity
+- active parent TX power
+- standby router TX power
+- ED TX power
+- variant A/B
+- run number
+
+Variant B metrics to collect:
+
+- standby discovered yes/no
+- targeted standby attach requested yes/no
+- targeted standby outcome success/miss/timeout
+- generic fallback used yes/no
+- failover trigger -> stable child time
+
+Variant A metrics to collect:
+
+- detach events
+- reattach time
+- final parent after recovery
+- whether OpenThread switched parent naturally
+
+Interpretation boundary:
+
+Use Scenario C to isolate the intended biparental advantage (pre-discovered standby switch path). Do **not** claim performance improvement until repeated A/C vs B/C runs are collected.
 
 ### Post-fix hardware spot-checks
 

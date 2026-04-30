@@ -162,6 +162,42 @@ symmetric/B/run-001-router--4dB-ed--4dB.log
 
 Current first-pass coverage includes Variant B nominal/uplink-only/downlink-only/symmetric and matching Variant A degraded reference captures at the `-4dB` degradation point. Routers and YAML substitutions were restored to nominal `8dB`, and the ED was reflashed back to Variant B nominal `8dB` afterward. Remaining comparison work: repeat B/A trials for statistics and decide whether to continue the deeper power sweep (`-8dB`, `-12dB`, `-15dB`).
 
+## Scenario C — active-parent TX ramp-down
+
+Scenario C isolates active-parent degradation while keeping standby routers healthy:
+
+- Variant naming remains unchanged:
+  - Variant A = OpenThread reference ED
+  - Variant B = biparental ED / targeted standby attach ED
+- Scenario C = active-parent-only TX ramp-down (not a new variant)
+
+Definition:
+
+1. ED starts attached to active parent P1.
+2. Variant B confirms a standby candidate (P2/P3) is discovered.
+3. ED TX power remains fixed.
+4. Standby router TX power remains fixed at nominal.
+5. Only active parent TX power is stepped:
+   `8dB -> 4dB -> 0dB -> -4dB -> -8dB -> -12dB -> -15dB`.
+6. A and B runs are captured at each step under same placement and dataset.
+
+Artifacts live under:
+
+- `artifacts/milestone-8/active-parent-ramp-down/`
+
+Metadata per trial includes:
+
+- active parent router identity,
+- active parent TX power,
+- standby router TX power,
+- ED TX power,
+- variant,
+- run id.
+
+Interpretation note:
+
+Scenario C is intended to isolate the biparental design advantage: switching to a pre-discovered standby when the active parent degrades, rather than relying on generic rediscovery. Do **not** claim performance improvement until repeated A/C vs B/C runs are collected.
+
 ## Post-fix spot-checks after preferred-search implementation change
 
 Date: 2026-04-29

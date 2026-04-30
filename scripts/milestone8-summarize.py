@@ -23,6 +23,9 @@ class TrialSummary:
     router_power: str
     ed_power: str
     log_path: str
+    active_parent_router_id: str = ""
+    active_parent_tx_power: str = ""
+    standby_router_tx_power: str = ""
     output_power_dbm: str = ""
     attach_count: int = 0
     detach_count: int = 0
@@ -43,6 +46,16 @@ class TrialSummary:
     final_state: str = ""
     final_outcome: str = ""
     final_failovers: str = ""
+    # Scenario-C / variant-focused metrics
+    standby_discovered: str = ""
+    targeted_attach_requested: int = 0
+    targeted_outcome_success: int = 0
+    targeted_outcome_miss: int = 0
+    targeted_outcome_timeout: int = 0
+    generic_fallback_used: int = 0
+    failover_trigger_to_stable_child_ms: str = ""
+    final_parent_after_recovery: str = ""
+    natural_parent_switch: str = ""
 
 
 def parse_ts_ms(line: str) -> int | None:
@@ -78,13 +91,19 @@ def summarize(log_path: Path, meta_path: Path) -> TrialSummary:
         run=meta.get("run_id", log_path.stem),
         router_power=meta.get("router_output_power", ""),
         ed_power=meta.get("ed_output_power", ""),
+        active_parent_router_id=meta.get("active_parent_router_id", ""),
+        active_parent_tx_power=meta.get("active_parent_tx_power", ""),
+        standby_router_tx_power=meta.get("standby_router_tx_power", ""),
         log_path=str(log_path.relative_to(ROOT)),
     )
 
     first_ts = None
     pending_detach_ts = None
+    failover_trigger_ts = None
     durations: list[int] = []
     last_diag = None
+    last_rloc = None
+    natural_parent_switch = False
 
     for line in log_path.read_text(errors="replace").splitlines():
         ts = parse_ts_ms(line)
@@ -98,13 +117,30 @@ def summarize(log_path: Path, meta_path: Path) -> TrialSummary:
             summary.callback_registered += 1
         if "Requesting preferred failover" in line:
             summary.preferred_requests += 1
+            if failover_trigger_ts is None and ts is not None:
+                failover_trigger_ts = ts
+        if "Requesting targeted standby attach" in line:
+            summary.targeted_attach_requested += 1
+            if failover_trigger_ts is None and ts is not None:
+                failover_trigger_ts = ts
+        if "Targeted standby outcome=success" in line:
+            summary.targeted_outcome_success += 1
+        if "Targeted standby outcome=miss" in line:
+            summary.targeted_outcome_miss += 1
+        if "Targeted standby outcome=timeout" in line:
+            summary.targeted_outcome_timeout += 1
         if "Requesting generic reattach/failover" in line:
             summary.generic_requests += 1
+            summary.generic_fallback_used += 1
+            if failover_trigger_ts is None and ts is not None:
+                failover_trigger_ts = ts
         if "Failed to process Parent Response: Security" in line:
             summary.parent_response_security_warnings += 1
         if "Role child -> detached" in line:
             summary.detach_count += 1
             pending_detach_ts = ts
+            if failover_trigger_ts is None and ts is not None:
+                failover_trigger_ts = ts
         if "Role detached -> child" in line:
             summary.attach_count += 1
             if first_ts is not None and summary.initial_attach_ms == "":
@@ -112,6 +148,16 @@ def summarize(log_path: Path, meta_path: Path) -> TrialSummary:
             if pending_detach_ts is not None and ts is not None and ts >= pending_detach_ts:
                 durations.append(ts - pending_detach_ts)
                 pending_detach_ts = None
+            if failover_trigger_ts is not None and ts is not None and ts >= failover_trigger_ts and summary.failover_trigger_to_stable_child_ms == "":
+                summary.failover_trigger_to_stable_child_ms = str(ts - failover_trigger_ts)
+        if "RLOC16 " in line and " -> " in line:
+            m = re.search(r"RLOC16\s+([0-9a-fA-F]{4})\s+->\s+([0-9a-fA-F]{4})", line)
+            if m:
+                frm = m.group(1).lower()
+                to = m.group(2).lower()
+                last_rloc = to
+                if frm != "fffe" and to != "fffe" and frm != to:
+                    natural_parent_switch = True
         if "[D][biparental_ed.diag:" in line:
             summary.diag_lines += 1
             if "standby=yes" in line:
@@ -136,6 +182,14 @@ def summarize(log_path: Path, meta_path: Path) -> TrialSummary:
             summary.final_state = state_match.group(1) if state_match else ""
             summary.final_outcome = outcome
             summary.final_failovers = failovers
+            summary.final_parent_after_recovery = re.search(r"active=(0x[0-9a-fA-F]+)", last_diag).group(1) if re.search(r"active=(0x[0-9a-fA-F]+)", last_diag) else ""
+
+    if not summary.final_parent_after_recovery and last_rloc and last_rloc != "fffe":
+        summary.final_parent_after_recovery = f"0x{last_rloc}"
+
+    if summary.variant == "B":
+        summary.standby_discovered = "yes" if summary.standby_yes > 0 else "no"
+    summary.natural_parent_switch = "yes" if natural_parent_switch else "no"
     return summary
 
 
@@ -153,12 +207,12 @@ def write_markdown(rows: list[TrialSummary], path: Path) -> None:
         "",
         f"Generated from `{ARTIFACTS.relative_to(ROOT)}`.",
         "",
-        "| Scenario | Variant | Run | Router | ED | Attach | Detach | Median detach→child ms | Standby yes/no | Preferred req | Generic req | Callback | Security warns | Final failovers | Final preferred outcome | Log |",
-        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|",
+        "| Scenario | Variant | Run | Router | ED | ActiveParent | Active TX | Standby TX | Attach | Detach | Trigger→stable ms | Standby yes/no | Targeted req | Targeted s/m/t | Generic fallback | Preferred req | Final parent | Natural switch | Log |",
+        "|---|---|---:|---:|---:|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---|---|---|",
     ]
     for row in rows:
         lines.append(
-            f"| {row.scenario} | {row.variant} | {row.run} | {row.router_power} | {row.ed_power} | {row.attach_count} | {row.detach_count} | {row.detach_to_child_median_ms or '-'} | {row.standby_yes}/{row.standby_no} | {row.preferred_requests} | {row.generic_requests} | {row.callback_registered} | {row.parent_response_security_warnings} | {row.final_failovers or '-'} | {row.final_outcome or '-'} | `{row.log_path}` |"
+            f"| {row.scenario} | {row.variant} | {row.run} | {row.router_power} | {row.ed_power} | {row.active_parent_router_id or '-'} | {row.active_parent_tx_power or '-'} | {row.standby_router_tx_power or '-'} | {row.attach_count} | {row.detach_count} | {row.failover_trigger_to_stable_child_ms or '-'} | {row.standby_yes}/{row.standby_no} | {row.targeted_attach_requested} | {row.targeted_outcome_success}/{row.targeted_outcome_miss}/{row.targeted_outcome_timeout} | {row.generic_fallback_used} | {row.preferred_requests} | {row.final_parent_after_recovery or '-'} | {row.natural_parent_switch or '-'} | `{row.log_path}` |"
         )
 
     lines += [

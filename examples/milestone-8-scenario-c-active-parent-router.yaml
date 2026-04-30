@@ -1,0 +1,9 @@
+substitutions:
+  devicename: m8-active-parent-router
+  friendly: "Milestone 8 Scenario C Active Parent Router"
+  # Overridden by scripts/milestone8-scenario-c-active-parent-ramp-down.sh per TX step.
+  thread_output_power: "8dB"
+
+packages:
+  base: !include hwtest-router.yaml
+  tx_power_degradation: !include tx-power-degradation.yaml

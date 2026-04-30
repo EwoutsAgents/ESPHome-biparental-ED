@@ -106,6 +106,39 @@ exit:
 """,
     ),
     (
+        ROOT / "thread/mle.cpp",
+        """    aRxInfo.mClass = RxInfo::kAuthoritativeMessage;
+
+#if OPENTHREAD_FTD
+""",
+        """    aRxInfo.mClass = RxInfo::kAuthoritativeMessage;
+
+    if (mMode == kSelectedParent)
+    {
+        LogNote(\"SelectedParent ParentResponse rx src=0x%04x rss=%d mode=%u\", sourceAddress, rss, mMode);
+    }
+
+#if OPENTHREAD_FTD
+""",
+    ),
+    (
+        ROOT / "thread/mle.cpp",
+        """exit:
+    LogProcessError(kTypeParentResponse, error);
+}
+""",
+        """exit:
+    if ((error != kErrorNone) && (mMode == kSelectedParent))
+    {
+        LogWarn(\"SelectedParent ParentResponse reject err=%s src=0x%04x rss=%d cand=0x%04x\", ErrorToString(error),
+                sourceAddress, rss, mParentCandidate.GetRloc16());
+    }
+
+    LogProcessError(kTypeParentResponse, error);
+}
+""",
+    ),
+    (
         ROOT / "api/thread_api.cpp",
         """otError otThreadSearchForBetterParent(otInstance *aInstance)
 {

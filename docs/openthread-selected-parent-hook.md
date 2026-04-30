@@ -47,6 +47,9 @@ At runtime, targeted flow logs should include:
 
 - `Requesting targeted standby attach target_rloc16=... target_ext=...`
 - `Targeted standby attach accepted`
+- OpenThread debug lines from the added instrumentation:
+  - `SelectedParent ParentResponse rx src=...`
+  - `SelectedParent ParentResponse reject err=...`
 
 If the hook is absent, logs show:
 

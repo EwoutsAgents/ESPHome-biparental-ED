@@ -139,6 +139,72 @@ exit:
     ),
     (
         ROOT / "thread/mle.cpp",
+        """void Mle::Attacher::HandleChildIdRequestTxDone(const Message &aMessage)
+{
+    if (aMessage.GetTxSuccess() && !Get<Mle>().IsRxOnWhenIdle())
+    {
+        Get<DataPollSender>().SetAttachMode(true);
+        Get<MeshForwarder>().SetRxOnWhenIdle(false);
+    }
+""",
+        """void Mle::Attacher::HandleChildIdRequestTxDone(const Message &aMessage)
+{
+    LogNote(\"ChildIdRequest txdone mode=%u success=%d secured=%d state=%u\", mMode, aMessage.GetTxSuccess(),
+            aMessage.IsLinkSecurityEnabled(), mState);
+
+    if (aMessage.GetTxSuccess() && !Get<Mle>().IsRxOnWhenIdle())
+    {
+        Get<DataPollSender>().SetAttachMode(true);
+        Get<MeshForwarder>().SetRxOnWhenIdle(false);
+    }
+""",
+    ),
+    (
+        ROOT / "thread/mle.cpp",
+        """    destination.SetToLinkLocalAddress(mParentCandidate.GetExtAddress());
+    SuccessOrExit(error = message->SendTo(destination));
+
+    Log(kMessageSend,
+        (mAddressRegistrationMode == kAppendMeshLocalOnly) ? kTypeChildIdRequestShort : kTypeChildIdRequest,
+        destination);
+""",
+        """    destination.SetToLinkLocalAddress(mParentCandidate.GetExtAddress());
+    SuccessOrExit(error = message->SendTo(destination));
+
+    LogNote(\"ChildIdRequest send dst=%s mode=%u addr_reg_mode=%u\", destination.ToString().AsCString(), mMode,
+            mAddressRegistrationMode);
+
+    Log(kMessageSend,
+        (mAddressRegistrationMode == kAppendMeshLocalOnly) ? kTypeChildIdRequestShort : kTypeChildIdRequest,
+        destination);
+"""
+    ),
+    (
+        ROOT / "thread/mle.cpp",
+        """    Log(kMessageSend,
+        (mAddressRegistrationMode == kAppendMeshLocalOnly) ? kTypeChildIdRequestShort : kTypeChildIdRequest,
+        destination);
+exit:
+    FreeMessageOnError(message, error);
+    return error;
+}
+""",
+        """    Log(kMessageSend,
+        (mAddressRegistrationMode == kAppendMeshLocalOnly) ? kTypeChildIdRequestShort : kTypeChildIdRequest,
+        destination);
+exit:
+    if ((error != kErrorNone) && (mMode == kSelectedParent))
+    {
+        LogWarn(\"SelectedParent ChildIdRequest send failed err=%s cand=0x%04x\", ErrorToString(error),
+                mParentCandidate.GetRloc16());
+    }
+    FreeMessageOnError(message, error);
+    return error;
+}
+""",
+    ),
+    (
+        ROOT / "thread/mle.cpp",
         """    VerifyOrExit(aRxInfo.IsNeighborStateValid(), error = kErrorSecurity);
 
     VerifyOrExit(mState == kStateChildIdRequest);

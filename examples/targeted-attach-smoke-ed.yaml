@@ -1,0 +1,23 @@
+substitutions:
+  devicename: targeted-attach-smoke-ed
+  friendly: "Targeted Attach Smoke ED"
+  thread_output_power: "8dB"
+
+packages:
+  base: !include hwtest-ed.yaml
+  tx_power_degradation: !include tx-power-degradation.yaml
+
+biparental_ed:
+  hold_down_time: 1s
+  failover_eligible_delay: 1s
+  post_failover_stabilize_time: 3s
+  preferred_reattach_timeout: 5s
+
+  degraded_rssi_threshold: -1
+  degrade_persist_time: 1s
+
+  enable_parent_response_callback: true
+  runtime_debug_enabled: true
+  runtime_debug_interval: 2s
+  verbose_diagnostics: true
+  diagnostics_publish_interval: 2s

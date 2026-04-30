@@ -97,20 +97,6 @@ FailoverAction FailoverController::evaluate(uint32_t now_ms, bool attached_as_ch
           this->preferred_current_target_rloc16_ = 0xffff;
           break;
         }
-
-        // Child attach happened but to a different parent: deterministic miss -> generic fallback.
-        if (attached_parent_known) {
-          this->transition_(FailoverState::REATTACHING_GENERIC, now_ms);
-          this->preferred_miss_count_++;
-          this->record_preferred_outcome_(PreferredReattachOutcome::MISS, this->preferred_current_target_rloc16_,
-                                          attached_parent_rloc16, FailoverState::REATTACHING_GENERIC);
-          action.type = FailoverActionType::TRIGGER_GENERIC_REATTACH;
-          action.reason = FailoverActionReason::PREFERRED_MISS;
-          action.preferred_target_rloc16 = this->preferred_last_target_rloc16_;
-          action.attached_parent_rloc16 = attached_parent_rloc16;
-          this->preferred_current_target_rloc16_ = 0xffff;
-          break;
-        }
       }
 
       if ((now_ms - this->state_entered_ms_) >= this->preferred_reattach_timeout_ms_) {

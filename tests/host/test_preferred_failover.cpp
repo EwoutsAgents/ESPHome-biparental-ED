@@ -82,17 +82,21 @@ bool test_preferred_success_requires_exact_parent_match() {
   (void) controller.evaluate(2, true, true, true, false, 0x1111, 0x2222);
   (void) controller.evaluate(3, true, true, true, false, 0x1111, 0x2222);
 
-  const auto miss = controller.evaluate(4, true, true, true, false, 0x3333, 0x2222);
-  if (!expect(miss.type == FailoverActionType::TRIGGER_GENERIC_REATTACH,
-              "attach to non-target parent should be treated as miss")) {
+  const auto pending = controller.evaluate(4, true, true, true, false, 0x3333, 0x2222);
+  if (!expect(pending.type == FailoverActionType::NONE,
+              "attach to non-target parent should remain in preferred wait window")) {
     return false;
   }
-  if (!expect(miss.reason == FailoverActionReason::PREFERRED_MISS,
-              "attach to non-target parent should emit preferred miss")) {
+  if (!expect(controller.state() == FailoverState::REATTACHING_PREFERRED,
+              "non-target parent should not force immediate generic fallback")) {
     return false;
   }
   if (!expect(controller.preferred_success_count() == 0,
               "preferred success count must stay zero on non-target attach")) {
+    return false;
+  }
+  if (!expect(controller.preferred_last_outcome() == PreferredReattachOutcome::NONE,
+              "non-target parent during wait window should not finalize preferred outcome")) {
     return false;
   }
 

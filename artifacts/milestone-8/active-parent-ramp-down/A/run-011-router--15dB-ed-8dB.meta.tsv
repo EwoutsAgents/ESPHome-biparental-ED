@@ -1,0 +1,10 @@
+variant	A
+scenario	active-parent-ramp-down
+run_id	011
+router_output_power	-15dB
+ed_output_power	8dB
+active_parent_router_id	P1
+active_parent_tx_power	-15dB
+standby_router_tx_power	8dB
+yaml	examples/milestone-8-variant-a-reference-ed.yaml
+started_utc	2026-04-30T18:53:59Z

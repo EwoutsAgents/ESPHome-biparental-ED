@@ -4,6 +4,30 @@ Generated from `artifacts/milestone-8`.
 
 | Scenario | Variant | Run | Router | ED | ActiveParent | Active TX | Standby TX | Attach | Detach | Trigger→stable ms | Standby yes/no | Targeted req | Targeted s/m/t | Generic fallback | Preferred req | Final parent | Natural switch | Log |
 |---|---|---:|---:|---:|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---|---|---|
+| active-parent-ramp-down | A | 001 | 4dB | 8dB | P1 | 4dB | 8dB | 3 | 2 | 1305 | 13/10 | 1 | 0/2/0 | 1 | 0 | 0xe000 | no | `artifacts/milestone-8/active-parent-ramp-down/A/run-001-router-4dB-ed-8dB.log` |
+| active-parent-ramp-down | A | 002 | 4dB | 8dB | P1 | 4dB | 8dB | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/active-parent-ramp-down/A/run-002-router-4dB-ed-8dB.log` |
+| active-parent-ramp-down | A | 003 | 0dB | 8dB | P1 | 0dB | 8dB | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/active-parent-ramp-down/A/run-003-router-0dB-ed-8dB.log` |
+| active-parent-ramp-down | A | 004 | -4dB | 8dB | P1 | -4dB | 8dB | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/active-parent-ramp-down/A/run-004-router--4dB-ed-8dB.log` |
+| active-parent-ramp-down | A | 005 | -4dB | 8dB | P1 | -4dB | 8dB | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/active-parent-ramp-down/A/run-005-router--4dB-ed-8dB.log` |
+| active-parent-ramp-down | A | 006 | -4dB | 8dB | P1 | -4dB | 8dB | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/active-parent-ramp-down/A/run-006-router--4dB-ed-8dB.log` |
+| active-parent-ramp-down | A | 007 | -8dB | 8dB | P1 | -8dB | 8dB | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | 0xe099 | no | `artifacts/milestone-8/active-parent-ramp-down/A/run-007-router--8dB-ed-8dB.log` |
+| active-parent-ramp-down | A | 008 | -8dB | 8dB | P1 | -8dB | 8dB | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/active-parent-ramp-down/A/run-008-router--8dB-ed-8dB.log` |
+| active-parent-ramp-down | A | 009 | -12dB | 8dB | P1 | -12dB | 8dB | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/active-parent-ramp-down/A/run-009-router--12dB-ed-8dB.log` |
+| active-parent-ramp-down | A | 010 | -12dB | 8dB | P1 | -12dB | 8dB | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/active-parent-ramp-down/A/run-010-router--12dB-ed-8dB.log` |
+| active-parent-ramp-down | A | 011 | -15dB | 8dB | P1 | -15dB | 8dB | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/active-parent-ramp-down/A/run-011-router--15dB-ed-8dB.log` |
+| active-parent-ramp-down | A | 012 | -15dB | 8dB | P1 | -15dB | 8dB | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/active-parent-ramp-down/A/run-012-router--15dB-ed-8dB.log` |
+| active-parent-ramp-down | B | 001 | 4dB | 8dB | P1 | 4dB | 8dB | 2 | 1 | 2029 | 6/13 | 0 | 0/0/0 | 1 | 0 | 0xe000 | no | `artifacts/milestone-8/active-parent-ramp-down/B/run-001-router-4dB-ed-8dB.log` |
+| active-parent-ramp-down | B | 002 | 4dB | 8dB | P1 | 4dB | 8dB | 2 | 1 | 3714 | 3/15 | 0 | 0/0/0 | 1 | 0 | 0xe000 | no | `artifacts/milestone-8/active-parent-ramp-down/B/run-002-router-4dB-ed-8dB.log` |
+| active-parent-ramp-down | B | 003 | 0dB | 8dB | P1 | 0dB | 8dB | 2 | 1 | 3211 | 2/17 | 0 | 0/0/0 | 1 | 0 | 0xe000 | no | `artifacts/milestone-8/active-parent-ramp-down/B/run-003-router-0dB-ed-8dB.log` |
+| active-parent-ramp-down | B | 004 | -4dB | 8dB | P1 | -4dB | 8dB | 4 | 3 | 8581 | 36/12 | 2 | 1/2/0 | 1 | 0 | 0x1800 | yes | `artifacts/milestone-8/active-parent-ramp-down/B/run-004-router--4dB-ed-8dB.log` |
+| active-parent-ramp-down | B | 005 | -4dB | 8dB | P1 | -4dB | 8dB | 5 | 5 | 4445 | 36/15 | 3 | 1/2/0 | 1 | 0 | 0x1800 | yes | `artifacts/milestone-8/active-parent-ramp-down/B/run-005-router--4dB-ed-8dB.log` |
+| active-parent-ramp-down | B | 006 | -4dB | 8dB | P1 | -4dB | 8dB | 6 | 5 | 1552 | 38/13 | 3 | 2/2/0 | 1 | 0 | 0xe000 | yes | `artifacts/milestone-8/active-parent-ramp-down/B/run-006-router--4dB-ed-8dB.log` |
+| active-parent-ramp-down | B | 007 | -8dB | 8dB | P1 | -8dB | 8dB | 4 | 3 | 1521 | 36/9 | 2 | 2/0/0 | 1 | 0 | 0xe000 | yes | `artifacts/milestone-8/active-parent-ramp-down/B/run-007-router--8dB-ed-8dB.log` |
+| active-parent-ramp-down | B | 008 | -8dB | 8dB | P1 | -8dB | 8dB | 3 | 2 | 6168 | 28/17 | 1 | 0/2/0 | 1 | 0 | 0xe000 | no | `artifacts/milestone-8/active-parent-ramp-down/B/run-008-router--8dB-ed-8dB.log` |
+| active-parent-ramp-down | B | 009 | -12dB | 8dB | P1 | -12dB | 8dB | 6 | 5 | 2968 | 39/13 | 3 | 2/2/0 | 1 | 0 | 0xe000 | yes | `artifacts/milestone-8/active-parent-ramp-down/B/run-009-router--12dB-ed-8dB.log` |
+| active-parent-ramp-down | B | 010 | -12dB | 8dB | P1 | -12dB | 8dB | 6 | 5 | 3279 | 45/11 | 3 | 2/2/0 | 1 | 0 | 0xe000 | yes | `artifacts/milestone-8/active-parent-ramp-down/B/run-010-router--12dB-ed-8dB.log` |
+| active-parent-ramp-down | B | 011 | -15dB | 8dB | P1 | -15dB | 8dB | 5 | 4 | 2595 | 36/13 | 2 | 1/2/0 | 1 | 0 | 0x1800 | yes | `artifacts/milestone-8/active-parent-ramp-down/B/run-011-router--15dB-ed-8dB.log` |
+| active-parent-ramp-down | B | 012 | -15dB | 8dB | P1 | -15dB | 8dB | 5 | 4 | 1315 | 34/16 | 2 | 1/2/0 | 1 | 0 | 0x1800 | yes | `artifacts/milestone-8/active-parent-ramp-down/B/run-012-router--15dB-ed-8dB.log` |
 | clean-reflash | B | 001 | 8dB | 8dB | - | - | - | 1 | 0 | - | 0/31 | 0 | 0/0/0 | 0 | 0 | 0xe000 | no | `artifacts/milestone-8/clean-reflash/B/run-001-router-8dB-ed-8dB.log` |
 | downlink-only | A | 001 | -4dB | 8dB | - | - | - | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/downlink-only/A/run-001-router--4dB-ed-8dB.log` |
 | downlink-only | A | 002 | -4dB | 8dB | - | - | - | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/downlink-only/A/run-002-router--4dB-ed-8dB.log` |
@@ -34,8 +58,12 @@ Generated from `artifacts/milestone-8`.
 | post-router-verify | B | 001 | 8dB | 8dB | - | - | - | 1 | 0 | - | 0/25 | 0 | 0/0/0 | 0 | 0 | 0xe000 | no | `artifacts/milestone-8/post-router-verify/B/run-001-router-8dB-ed-8dB.log` |
 | search-refresh | B | 001 | 8dB | 8dB | - | - | - | 1 | 0 | - | 0/31 | 0 | 0/0/0 | 0 | 0 | 0xe000 | no | `artifacts/milestone-8/search-refresh/B/run-001-router-8dB-ed-8dB.log` |
 | steady-state | A | 001 | 8dB | 8dB | - | - | - | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/steady-state/A/run-001-router-8dB-ed-8dB.log` |
+| steady-state | A | 002 | 8dB | 8dB | unknown | 8dB | 8dB | 0 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/steady-state/A/run-002-router-8dB-ed-8dB.log` |
+| steady-state | A | 003 | 8dB | 8dB | unknown | 8dB | 8dB | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/steady-state/A/run-003-router-8dB-ed-8dB.log` |
+| steady-state | A | QUICKA | 8dB | 8dB | unknown | 8dB | 8dB | 0 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/steady-state/A/run-QUICKA-router-8dB-ed-8dB.log` |
 | steady-state | B | 001 | 8dB | 8dB | - | - | - | 2 | 1 | 1914 | 0/28 | 0 | 0/0/0 | 1 | 0 | 0xdc00 | no | `artifacts/milestone-8/steady-state/B/run-001-router-8dB-ed-8dB.log` |
 | steady-state | B | 002 | 8dB | 8dB | - | - | - | 4 | 4 | 1569 | 0/50 | 0 | 0/0/0 | 4 | 0 | 0xe000 | no | `artifacts/milestone-8/steady-state/B/run-002-router-8dB-ed-8dB.log` |
+| steady-state | B | 003 | 8dB | 8dB | unknown | 8dB | 8dB | 2 | 1 | 3080 | 7/12 | 0 | 0/0/0 | 1 | 0 | 0xe000 | no | `artifacts/milestone-8/steady-state/B/run-003-router-8dB-ed-8dB.log` |
 | symmetric | A | 001 | -4dB | -4dB | - | - | - | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/symmetric/A/run-001-router--4dB-ed--4dB.log` |
 | symmetric | A | 002 | -4dB | -4dB | - | - | - | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/symmetric/A/run-002-router--4dB-ed--4dB.log` |
 | symmetric | A | 003 | -4dB | -4dB | - | - | - | 1 | 0 | - | 0/0 | 0 | 0/0/0 | 0 | 0 | - | no | `artifacts/milestone-8/symmetric/A/run-003-router--4dB-ed--4dB.log` |
@@ -60,6 +88,7 @@ Generated from `artifacts/milestone-8`.
 
 | Scenario | A | B |
 |---|---|---|
+| active-parent-ramp-down | 12 | 12 |
 | clean-reflash | - | 1 |
 | downlink-only | 4 | 4 |
 | neighbor-diagnostics | - | 1 |
@@ -68,7 +97,7 @@ Generated from `artifacts/milestone-8`.
 | parent-callback | - | 1 |
 | post-router-verify | - | 1 |
 | search-refresh | - | 1 |
-| steady-state | 1 | 2 |
+| steady-state | 4 | 3 |
 | symmetric | 4 | 4 |
 | uplink-only | 4 | 4 |
 | uplink-only-postfix | - | 3 |

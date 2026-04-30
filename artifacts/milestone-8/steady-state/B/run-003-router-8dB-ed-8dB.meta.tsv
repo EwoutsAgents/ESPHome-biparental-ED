@@ -1,0 +1,10 @@
+variant	B
+scenario	steady-state
+run_id	003
+router_output_power	8dB
+ed_output_power	8dB
+active_parent_router_id	unknown
+active_parent_tx_power	8dB
+standby_router_tx_power	8dB
+yaml	examples/milestone-8-variant-b-biparental-ed.yaml
+started_utc	2026-04-30T16:06:26Z

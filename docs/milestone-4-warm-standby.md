@@ -63,7 +63,7 @@ Milestone 4 is complete for:
 - runtime diagnostics,
 - baseline failover actuation plumbing.
 
-Milestone 5 is still required for deterministic preferred-target outcome control (policy/behavior beyond best-effort request issuance).
+Milestone 5 is still required for explicit preferred-search outcome classification and fallback control (policy/behavior beyond best-effort request issuance).
 
 ## Next document
 

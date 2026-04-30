@@ -405,7 +405,7 @@ Important log evidence from the exercised runs:
 Requesting best-effort preferred parent search (target=0x8c00)
 Best-effort preferred parent search accepted (target=0x8c00, staying attached while OpenThread searches)
 Attach attempt 0, BetterParent
-Preferred outcome=miss target=0x8c00 attached=0xe000 -> action=generic_reattach
+Preferred search outcome=miss target=0x8c00 attached=0xe000 -> action=generic_reattach
 ```
 
 and similarly for run `003`:
@@ -414,7 +414,7 @@ and similarly for run `003`:
 Requesting best-effort preferred parent search (target=0x9400)
 Best-effort preferred parent search accepted (target=0x9400, staying attached while OpenThread searches)
 Attach attempt 0, BetterParent
-Preferred outcome=miss target=0x9400 attached=0xe000 -> action=generic_reattach
+Preferred search outcome=miss target=0x9400 attached=0xe000 -> action=generic_reattach
 ```
 
 #### Post-fix interpretation

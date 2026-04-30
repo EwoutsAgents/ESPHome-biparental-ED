@@ -346,7 +346,7 @@ void BiparentalEDComponent::maybe_issue_failover_action_(uint32_t now_ms, const 
   if (action.type == FailoverActionType::TRIGGER_GENERIC_REATTACH) {
     if (action.reason == FailoverActionReason::PREFERRED_MISS || action.reason == FailoverActionReason::PREFERRED_TIMEOUT) {
       ESP_LOGW(TAG,
-               "Preferred outcome=%s target=0x%04x attached=0x%04x -> action=generic_reattach",
+               "Preferred search outcome=%s target=0x%04x attached=0x%04x -> action=generic_reattach",
                action.reason == FailoverActionReason::PREFERRED_MISS ? "miss" : "timeout",
                action.preferred_target_rloc16,
                action.attached_parent_rloc16);
@@ -365,7 +365,7 @@ void BiparentalEDComponent::maybe_log_preferred_outcome_() {
 
   this->last_logged_preferred_outcome_event_count_ = event_count;
   ESP_LOGI(TAG,
-           "Preferred outcome=%s target=0x%04x attached=0x%04x -> result_state=%u",
+           "Preferred search outcome=%s target=0x%04x attached=0x%04x -> result_state=%u",
            preferred_outcome_to_cstr(this->failover_controller_.preferred_last_outcome()),
            this->failover_controller_.preferred_last_target_rloc16(),
            this->failover_controller_.preferred_last_attached_parent_rloc16(),

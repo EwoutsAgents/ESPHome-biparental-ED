@@ -483,9 +483,9 @@ Useful lines documented by the implementation and milestone logs include:
 - `OpenThread detected; enabling runtime adapter`
 - `runtime: got_metrics=...`
 - `Triggered OpenThread better-parent search refresh`
-- `Requesting preferred failover (target=0x....)`
-- `Preferred outcome=success|miss|timeout target=... attached=... -> result_state=...`
-- `Preferred outcome=miss|timeout ... -> action=generic_reattach`
+- `Requesting best-effort preferred parent search (target=0x....)`
+- `Preferred search outcome=success|miss|timeout target=... attached=... -> result_state=...`
+- `Preferred search outcome=miss|timeout ... -> action=generic_reattach`
 
 Diagnostic snapshots include:
 
@@ -517,11 +517,11 @@ Evidence reference in docs: `/tmp/biparental-ed-validation-8.log`
 Validation documented three preferred outcomes on hardware:
 
 - **miss**
-  - `Preferred outcome=miss target=0x5400 attached=0xc800 -> result_state=7`
+  - `Preferred search outcome=miss target=0x5400 attached=0xc800 -> result_state=7`
 - **success**
-  - `Preferred outcome=success target=0x5400 attached=0x5400 -> result_state=8`
+  - `Preferred search outcome=success target=0x5400 attached=0x5400 -> result_state=8`
 - **timeout**
-  - `Preferred outcome=timeout target=0xc800 attached=0xffff -> result_state=7`
+  - `Preferred search outcome=timeout target=0xc800 attached=0xffff -> result_state=7`
 
 Milestone 5 also reports:
 
@@ -541,7 +541,7 @@ Documented as implemented, with:
 
 Closeout passed with fresh timeout-specific evidence:
 
-- `Preferred outcome=timeout ...`
+- `Preferred search outcome=timeout ...`
 - `entity.last_failover_reason=preferred_timeout`
 
 Milestone 7 also records that direct `esptool` flashing was used successfully when `esphome upload` was intermittently unreliable.
@@ -558,9 +558,9 @@ The component can prefer a target, but OpenThread may still attach elsewhere. Th
 
 Milestone 7 explicitly notes intermittent `esphome upload` connection failures on `/dev/ttyACM0`, with direct `esptool` flashing used as the stable workaround in that validation pass.
 
-### Parent-response callback integration is incomplete
+### Parent-response callback integration is runtime-wired
 
-The option exists, but the code still treats callback registration as future wiring. Do not assume current standby tracking depends on live parent-response callback registration.
+When `enable_parent_response_callback: true` is configured and the OpenThread lock is available, the callback is registered at runtime and callback-derived parent observations feed standby discovery.
 
 ### Control-plane error counting is not fully implemented
 
@@ -699,7 +699,7 @@ Deliverable:
 Outcome:
 
 - Timeout closeout criteria captured on fresh hardware logs:
-  - `Preferred outcome=timeout`
+  - `Preferred search outcome=timeout`
   - `entity.last_failover_reason=preferred_timeout`
 
 ### Milestone 8 — Parent Switching Performance Comparison (completed, negative result)
@@ -713,4 +713,4 @@ Outcome:
 - Repeated nominal and `-4dB` comparison batches were captured for both the default Thread reference and the biparental policy variant.
 - The parent-response callback fix restored standby discovery on the MED/MTD hardware path.
 - The current biparental policy revision did **not** demonstrate a switching-performance improvement over the default reference behavior in the captured comparison windows.
-- Preferred failover continued to resolve as `miss`, so the milestone closes with a recommendation to tune the preferred-switch path before any further claim of improvement.
+- Preferred best-effort search continued to resolve as `miss`, so the milestone closes with a recommendation to tune this path before any further claim of improvement.

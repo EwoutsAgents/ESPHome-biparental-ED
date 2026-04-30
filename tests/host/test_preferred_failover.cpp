@@ -29,6 +29,22 @@ bool test_preferred_request_stays_attached() {
                 "attached child should use search-without-detach for preferred request");
 }
 
+bool test_preferred_candidate_passed_as_intent_target() {
+  FailoverController controller;
+  controller.set_hold_down_time_ms(0);
+  controller.set_failover_eligible_delay_ms(0);
+
+  (void) controller.evaluate(0, false, false, false, false, 0xffff, 0xffff);
+  (void) controller.evaluate(1, true, true, false, false, 0x1111, 0x2222);
+  (void) controller.evaluate(2, true, true, true, false, 0x1111, 0x2222);
+  const auto preferred = controller.evaluate(3, true, true, true, false, 0x1111, 0x2222);
+
+  return expect(preferred.type == FailoverActionType::TRIGGER_PREFERRED_REATTACH,
+                "health failure with standby should trigger preferred path") &&
+         expect(preferred.preferred_target_rloc16 == 0x2222,
+                "standby candidate RLOC16 should be passed as preferred intent target");
+}
+
 bool test_preferred_timeout_falls_back_to_generic() {
   FailoverController controller;
   controller.set_hold_down_time_ms(0);
@@ -105,6 +121,7 @@ bool test_preferred_success_requires_exact_parent_match() {
 int main() {
   bool ok = true;
   ok = test_preferred_request_stays_attached() && ok;
+  ok = test_preferred_candidate_passed_as_intent_target() && ok;
   ok = test_preferred_timeout_falls_back_to_generic() && ok;
   ok = test_preferred_success_requires_exact_parent_match() && ok;
 

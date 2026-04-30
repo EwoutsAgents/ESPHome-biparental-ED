@@ -1,14 +1,19 @@
-# Milestone 5 — Deterministic Preferred-Failover Outcome Handling
+# Milestone 5 — Best-Effort Preferred-Parent Search Outcome Handling
 
 Status: **implemented and hardware-validated**
 
 ## Objective
 
-Make preferred failover deterministic by classifying preferred reattach outcomes explicitly and enforcing a fixed policy for each outcome.
+Implement explicit best-effort preferred-parent-search outcome handling:
 
-## Deterministic policy implemented
+- keep a preferred standby RLOC16 as policy intent,
+- request OpenThread better-parent search as a best-effort action,
+- classify result as success/miss/timeout,
+- enforce fixed generic fallback policy for miss/timeout.
 
-During `REATTACHING_PREFERRED`, the controller now distinguishes three outcomes:
+## Outcome policy implemented
+
+During `REATTACHING_PREFERRED`, the controller distinguishes three outcomes:
 
 1. **Preferred success**
    - Condition: attached as child **and** attached parent RLOC16 equals requested preferred target RLOC16.
@@ -25,21 +30,21 @@ During `REATTACHING_PREFERRED`, the controller now distinguishes three outcomes:
    - Transition/action: transition to `REATTACHING_GENERIC` + `TRIGGER_GENERIC_REATTACH`.
    - Counters: `preferred_miss_count++`.
 
-Additional deterministic edge handling:
+Additional edge handling:
 
 - If child attach occurs but parent identity cannot be resolved before timeout, the outcome is treated as **miss** and falls back to generic reattach.
 
 ## Key behavior guarantees
 
-- `preferred_success_count` is incremented **only** on exact preferred-target match.
-- Attach-to-non-target is no longer treated as preferred success.
-- Miss/timeout always follow a deterministic fallback path to generic reattach.
+- `preferred_success_count` increments **only** on exact preferred-target match.
+- Attach-to-non-target is treated as miss.
+- Miss/timeout always follow deterministic fallback to generic reattach.
 
-## Diagnostics and logging added
+## Diagnostics and logging
 
 ### Snapshot diagnostics (periodic + on change)
 
-Diagnostics now include, in addition to existing counters/state:
+Diagnostics include:
 
 - `preferred_target_rloc16`
 - `preferred_attached_parent_rloc16`
@@ -50,13 +55,13 @@ Diagnostics now include, in addition to existing counters/state:
 
 On each preferred outcome event:
 
-- `Preferred outcome=<success|miss|timeout> target=0x.... attached=0x.... -> result_state=<...>`
+- `Preferred search outcome=<success|miss|timeout> target=0x.... attached=0x.... -> result_state=<...>`
 
 On miss/timeout fallback action:
 
-- `Preferred outcome=<miss|timeout> target=0x.... attached=0x.... -> action=generic_reattach`
+- `Preferred search outcome=<miss|timeout> target=0x.... attached=0x.... -> action=generic_reattach`
 
-These lines provide single-capture proof of preferred target, attached parent at decision time, outcome, and resulting transition/action.
+These lines provide single-capture proof of preferred intent target, attached parent at decision time, outcome, and resulting transition/action.
 
 ## Files changed for Milestone 5
 
@@ -86,19 +91,19 @@ Evidence log: `/tmp/m5-hw-ed.log`
 Observed preferred outcomes in hardware logs:
 
 - **Miss**
-  - `[12:58:56.069] Preferred outcome=miss target=0x5400 attached=0xc800 -> result_state=7`
-  - `[12:58:56.080] Preferred outcome=miss ... -> action=generic_reattach`
+  - `[12:58:56.069] Preferred search outcome=miss target=0x5400 attached=0xc800 -> result_state=7`
+  - `[12:58:56.080] Preferred search outcome=miss ... -> action=generic_reattach`
 
 - **Success**
-  - `[12:59:17.064] Preferred outcome=success target=0x5400 attached=0x5400 -> result_state=8`
+  - `[12:59:17.064] Preferred search outcome=success target=0x5400 attached=0x5400 -> result_state=8`
 
 - **Timeout**
-  - `[13:01:10.167] Preferred outcome=timeout target=0xc800 attached=0xffff -> result_state=7`
-  - `[13:01:10.178] Preferred outcome=timeout ... -> action=generic_reattach`
+  - `[13:01:10.167] Preferred search outcome=timeout target=0xc800 attached=0xffff -> result_state=7`
+  - `[13:01:10.178] Preferred search outcome=timeout ... -> action=generic_reattach`
 
 Counter/state consistency observed in diagnostics around those events:
 
-- success increments `preferred_success_count` only on target match (`preferred(a/s/m)` success slot increments on success line above),
+- success increments `preferred_success_count` only on target match,
 - miss/timeout increment miss slot and transition through generic fallback (`result_state=7`).
 
 ### Controller policy gate (host-side deterministic check)
@@ -110,12 +115,6 @@ Observed key lines:
 - `SUCCESS: ... outcome=1 result_state=8 a/s/m=1/1/0 failovers=1`
 - `MISS: ... reason=2 ... attached=0x3333 outcome=2 result_state=7 a/s/m=1/0/1 failovers=0`
 - `TIMEOUT: ... reason=3 ... attached=0xffff outcome=3 result_state=7 a/s/m=1/0/1 failovers=0`
-
-Interpretation:
-
-- `outcome=1` -> success only on target match.
-- `outcome=2` -> miss on non-target attach, deterministic fallback to generic (`result_state=7`).
-- `outcome=3` -> timeout with deterministic fallback to generic (`result_state=7`).
 
 ## Hardware evidence checklist
 

@@ -174,6 +174,59 @@ exit:
     ),
     (
         ROOT / "thread/mle.cpp",
+        """    if (HasAcceptableParentCandidate() && (SendChildIdRequest() == kErrorNone))
+    {
+        SetState(kStateChildIdRequest);
+        delay = kChildIdResponseTimeout;
+        ExitNow();
+    }
+""",
+        """    if (HasAcceptableParentCandidate() && (SendChildIdRequest() == kErrorNone))
+    {
+        if (mMode == kSelectedParent)
+        {
+            LogNote(\"SelectedParent ChildIdRequest sent cand=0x%04x timeout=%lu\", mParentCandidate.GetRloc16(),
+                    ToUlong(kChildIdResponseTimeout));
+        }
+        SetState(kStateChildIdRequest);
+        delay = kChildIdResponseTimeout;
+        ExitNow();
+    }
+""",
+    ),
+    (
+        ROOT / "thread/mle.cpp",
+        """    case kStateChildIdRequest:
+        SetState(kStateIdle);
+        mParentCandidate.Clear();
+        delay = Reattach();
+        break;
+""",
+        """    case kStateChildIdRequest:
+        if (mMode == kSelectedParent)
+        {
+            LogWarn(\"SelectedParent ChildIdRequest timed out cand=0x%04x\", mParentCandidate.GetRloc16());
+        }
+        SetState(kStateIdle);
+        mParentCandidate.Clear();
+        delay = Reattach();
+        break;
+""",
+    ),
+    (
+        ROOT / "thread/mle.cpp",
+        """    Get<Mle>().SetStateChild(shortAddress);
+""",
+        """    Get<Mle>().SetStateChild(shortAddress);
+
+    if (mMode == kSelectedParent)
+    {
+        LogNote(\"SelectedParent ChildIdResponse accepted parent=0x%04x child=0x%04x\", sourceAddress, shortAddress);
+    }
+""",
+    ),
+    (
+        ROOT / "thread/mle.cpp",
         """exit:
     LogProcessError(kTypeParentResponse, error);
 }

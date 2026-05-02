@@ -15,9 +15,10 @@ RESTORE_NOMINAL_AT_END="${RESTORE_NOMINAL_AT_END:-1}"
 A_YAML="examples/milestone-8-variant-a-reference-ed.yaml"
 B_YAML="examples/milestone-8-variant-b-biparental-ed.yaml"
 ACTIVE_ROUTER_YAML="examples/milestone-8-scenario-c-active-parent-router.yaml"
+ACTIVE_ROUTER_OFF_YAML="examples/milestone-8-scenario-c-active-parent-router-off.yaml"
 STANDBY_ROUTER_YAML="examples/milestone-8-scenario-c-standby-router.yaml"
 
-TX_STEPS=("8dB" "4dB" "0dB" "-4dB" "-8dB" "-12dB" "-15dB")
+TX_STEPS=("8dB" "4dB" "0dB" "-4dB" "-8dB" "-12dB" "-13dB" "-14dB" "-15dB" "off")
 STEP_DURATION_SECONDS="${STEP_DURATION_SECONDS:-30}"
 UPLOAD_OVERHEAD_SECONDS="${UPLOAD_OVERHEAD_SECONDS:-12}"
 FINAL_MARGIN_SECONDS="${FINAL_MARGIN_SECONDS:-15}"
@@ -63,6 +64,11 @@ materialize_yaml() {
   stem="${base%.yaml}"
   tag="$(power_tag "$power")"
   out="$yaml_dir/.m8tmp-${stem}-${tag}.yaml"
+  if [[ "$power" == "off" ]]; then
+    cp "$ACTIVE_ROUTER_OFF_YAML" "$out"
+    echo "$out"
+    return 0
+  fi
   python3 - "$yaml" "$out" "$power" <<'PY'
 from pathlib import Path
 import re
@@ -135,11 +141,15 @@ ensure_standby_nominal() {
 
 set_active_parent_power() {
   local tx="$1"
+  local yaml="$ACTIVE_ROUTER_YAML"
   if [[ "$CURRENT_ACTIVE_TX" == "$tx" ]]; then
     return 0
   fi
-  build_config "$ACTIVE_ROUTER_YAML" "$tx"
-  upload_config "$ACTIVE_ROUTER_YAML" "$tx" "$ACTIVE_PARENT_DEVICE"
+  if [[ "$tx" == "off" ]]; then
+    yaml="$ACTIVE_ROUTER_OFF_YAML"
+  fi
+  build_config "$yaml" "$tx"
+  upload_config "$yaml" "$tx" "$ACTIVE_PARENT_DEVICE"
   CURRENT_ACTIVE_TX="$tx"
 }
 
@@ -180,8 +190,12 @@ run_trial() {
     for ((idx=1; idx<${#TX_STEPS[@]}; idx++)); do
       sleep "$STEP_DURATION_SECONDS"
       local tx="${TX_STEPS[$idx]}"
+      local yaml="$ACTIVE_ROUTER_YAML"
+      if [[ "$tx" == "off" ]]; then
+        yaml="$ACTIVE_ROUTER_OFF_YAML"
+      fi
       log "Scenario C run ${run_id}: switching active parent TX to ${tx}"
-      upload_config_quiet "$ACTIVE_ROUTER_YAML" "$tx" "$ACTIVE_PARENT_DEVICE" "$ramp_log"
+      upload_config_quiet "$yaml" "$tx" "$ACTIVE_PARENT_DEVICE" "$ramp_log"
     done
   ) >> "$ramp_log" 2>&1 &
   ramp_pid=$!
@@ -235,7 +249,11 @@ main() {
   ensure_standby_nominal
 
   for tx in "${TX_STEPS[@]}"; do
-    build_config "$ACTIVE_ROUTER_YAML" "$tx"
+    if [[ "$tx" == "off" ]]; then
+      build_config "$ACTIVE_ROUTER_OFF_YAML" "$tx"
+    else
+      build_config "$ACTIVE_ROUTER_YAML" "$tx"
+    fi
   done
 
   for ((i=1; i<=REPEATS; i++)); do

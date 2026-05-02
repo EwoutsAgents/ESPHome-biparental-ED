@@ -10,6 +10,7 @@ configs=(
   milestone-8-variant-b-biparental-ed.yaml
   link-degradation-router.yaml
   milestone-8-scenario-c-active-parent-router.yaml
+  milestone-8-scenario-c-active-parent-router-off.yaml
   milestone-8-scenario-c-standby-router.yaml
 )
 

@@ -1,0 +1,22 @@
+substitutions:
+  devicename: m8-active-parent-router-off
+  friendly: "Milestone 8 Scenario C Active Parent Router Off"
+
+esphome:
+  name: ${devicename}
+  friendly_name: ${friendly}
+
+esp32:
+  board: esp32-c6-devkitc-1
+  framework:
+    type: esp-idf
+    log_level: INFO
+
+logger:
+  level: DEBUG
+  hardware_uart: UART0
+  deassert_rts_dtr: true
+
+# Intentionally no OpenThread component in this image.
+# Flashing this to the active-parent router is the Scenario C terminal "TX off"
+# condition: the previous parent stops participating in the Thread network entirely.

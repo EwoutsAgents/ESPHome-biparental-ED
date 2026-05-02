@@ -105,6 +105,7 @@ Notes:
 - On ESP32-C6, ESPHome validates OpenThread `output_power` in the `-15dB..20dB` range.
 - `output_power` is applied at firmware startup, so fixed-power sweeps require rebuilding/reflashing per power level.
 - Runtime ramping is now exercised through the dedicated Scenario C harness; fixed-power sweeps remain useful as controlled comparison subsets.
+- Because `-15dB` is the validated floor, Scenario C now extends the low-end sweep with finer steps down to `-15dB` and uses a dedicated final `off` step that flashes a no-OpenThread image to the active parent.
 
 Recommended first sweep:
 
@@ -373,7 +374,7 @@ Scenario definition:
 2. Confirm Variant B has standby candidate P2/P3.
 3. Keep ED TX fixed.
 4. Keep standby router TX fixed at nominal.
-5. During a single capture run, decrease only the active parent TX over time: `8dB -> 4dB -> 0dB -> -4dB -> -8dB -> -12dB -> -15dB`.
+5. During a single capture run, decrease only the active parent TX over time: `8dB -> 4dB -> 0dB -> -4dB -> -8dB -> -12dB -> -13dB -> -14dB -> -15dB -> off`.
 6. Hold each step for a fixed interval (`STEP_DURATION_SECONDS`, default `30s`) before moving to the next one.
 7. Budget per-run timeout to include both hold time and router reflash overhead (`UPLOAD_OVERHEAD_SECONDS`, default `12s`, plus a small final margin).
 8. Capture both A and B runs under the same placement and dataset while the active-parent ramp unfolds in-run.
@@ -413,7 +414,7 @@ Interpretation boundary:
 
 Use Scenario C to isolate the intended biparental advantage (pre-discovered standby switch path). Do **not** claim performance improvement until repeated A/C vs B/C runs are collected.
 
-Implementation note: `scripts/milestone8-scenario-c-active-parent-ramp-down.sh` now performs the active-parent TX ramp **during each run** instead of collecting separate fixed-power runs per step.
+Implementation note: `scripts/milestone8-scenario-c-active-parent-ramp-down.sh` now performs the active-parent TX ramp **during each run** instead of collecting separate fixed-power runs per step. The final `off` step flashes `examples/milestone-8-scenario-c-active-parent-router-off.yaml`, which intentionally omits the OpenThread component so the previous parent stops participating in the Thread network entirely.
 
 ### Post-fix hardware spot-checks
 

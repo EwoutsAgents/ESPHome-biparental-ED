@@ -6,7 +6,7 @@ if [[ $# -lt 6 ]]; then
 Usage: scripts/milestone8-log-trial.sh <variant> <scenario> <run_id> <router_power> <ed_power> <yaml> [device] [active_parent_id] [active_parent_tx] [standby_router_tx]
 
 Captures a timestamped ESPHome log for one approved Milestone 8 trial.
-This script does not flash firmware. Build/flash fixed-power images separately before trial collection.
+This script does not flash firmware. Build/flash device images separately before trial collection.
 
 Example:
   scripts/milestone8-log-trial.sh A downlink 001 -4dB 8dB examples/milestone-8-variant-a-reference-ed.yaml /dev/ttyACM0
@@ -24,6 +24,11 @@ device="${7:-}"
 active_parent_id="${8:-unknown}"
 active_parent_tx="${9:-${router_power}}"
 standby_router_tx="${10:-${router_power}}"
+active_parent_tx_mode="${ACTIVE_PARENT_TX_MODE:-}"
+active_parent_tx_schedule="${ACTIVE_PARENT_TX_SCHEDULE:-}"
+active_parent_step_duration_seconds="${ACTIVE_PARENT_STEP_DURATION_SECONDS:-}"
+active_parent_upload_overhead_seconds="${ACTIVE_PARENT_UPLOAD_OVERHEAD_SECONDS:-}"
+duration_seconds="${DURATION_SECONDS:-}"
 
 ESPHOME_BIN="${ESPHOME_BIN:-esphome}"
 root="$(cd "$(dirname "$0")/.." && pwd)"
@@ -42,6 +47,21 @@ log="${out_dir}/${stem}.log"
   printf 'active_parent_router_id\t%s\n' "${active_parent_id}"
   printf 'active_parent_tx_power\t%s\n' "${active_parent_tx}"
   printf 'standby_router_tx_power\t%s\n' "${standby_router_tx}"
+  if [[ -n "${active_parent_tx_mode}" ]]; then
+    printf 'active_parent_tx_mode\t%s\n' "${active_parent_tx_mode}"
+  fi
+  if [[ -n "${active_parent_tx_schedule}" ]]; then
+    printf 'active_parent_tx_schedule\t%s\n' "${active_parent_tx_schedule}"
+  fi
+  if [[ -n "${active_parent_step_duration_seconds}" ]]; then
+    printf 'active_parent_step_duration_seconds\t%s\n' "${active_parent_step_duration_seconds}"
+  fi
+  if [[ -n "${active_parent_upload_overhead_seconds}" ]]; then
+    printf 'active_parent_upload_overhead_seconds\t%s\n' "${active_parent_upload_overhead_seconds}"
+  fi
+  if [[ -n "${duration_seconds}" ]]; then
+    printf 'duration_seconds\t%s\n' "${duration_seconds}"
+  fi
   printf 'yaml\t%s\n' "${yaml}"
   printf 'started_utc\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 } | tee "${meta}"

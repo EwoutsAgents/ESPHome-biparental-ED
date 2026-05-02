@@ -9,7 +9,6 @@ ED_DEVICE="${ED_DEVICE:-/dev/ttyACM0}"
 ACTIVE_PARENT_DEVICE="${ACTIVE_PARENT_DEVICE:-/dev/ttyACM2}"
 STANDBY_ROUTER_DEVICES_CSV="${STANDBY_ROUTER_DEVICES_CSV:-/dev/ttyACM3,/dev/ttyACM4}"
 REPEATS="${REPEATS:-2}"
-DURATION_SECONDS="${DURATION_SECONDS:-180}"
 ACTIVE_PARENT_ID="${ACTIVE_PARENT_ID:-P1}"
 RESTORE_NOMINAL_AT_END="${RESTORE_NOMINAL_AT_END:-1}"
 
@@ -19,6 +18,10 @@ ACTIVE_ROUTER_YAML="examples/milestone-8-scenario-c-active-parent-router.yaml"
 STANDBY_ROUTER_YAML="examples/milestone-8-scenario-c-standby-router.yaml"
 
 TX_STEPS=("8dB" "4dB" "0dB" "-4dB" "-8dB" "-12dB" "-15dB")
+STEP_DURATION_SECONDS="${STEP_DURATION_SECONDS:-30}"
+UPLOAD_OVERHEAD_SECONDS="${UPLOAD_OVERHEAD_SECONDS:-12}"
+FINAL_MARGIN_SECONDS="${FINAL_MARGIN_SECONDS:-15}"
+DURATION_SECONDS="${DURATION_SECONDS:-$((STEP_DURATION_SECONDS * ${#TX_STEPS[@]} + UPLOAD_OVERHEAD_SECONDS * (${#TX_STEPS[@]} - 1) + FINAL_MARGIN_SECONDS))}"
 SCENARIO="active-parent-ramp-down"
 
 IFS=',' read -r -a STANDBY_ROUTER_DEVICES <<< "$STANDBY_ROUTER_DEVICES_CSV"
@@ -26,6 +29,8 @@ IFS=',' read -r -a STANDBY_ROUTER_DEVICES <<< "$STANDBY_ROUTER_DEVICES_CSV"
 declare -A BUILT_KEYS=()
 CURRENT_ACTIVE_TX=""
 CURRENT_STANDBY_TX=""
+ACTIVE_TX_SCHEDULE="$(printf '%s -> ' "${TX_STEPS[@]}")"
+ACTIVE_TX_SCHEDULE="${ACTIVE_TX_SCHEDULE% -> }"
 
 cleanup_temp_yamls() {
   rm -f "$ROOT"/examples/.m8tmp-*.yaml
@@ -103,6 +108,19 @@ upload_config() {
   run_esphome "$ESPHOME_BIN" upload "$materialized" --device "$device"
 }
 
+upload_config_quiet() {
+  local yaml="$1"
+  local power="$2"
+  local device="$3"
+  local log_file="$4"
+  local materialized
+  materialized="$(materialize_yaml "$yaml" "$power")"
+  {
+    log "$ESPHOME_BIN upload $materialized --device $device"
+    "$ESPHOME_BIN" upload "$materialized" --device "$device"
+  } >> "$log_file" 2>&1
+}
+
 ensure_standby_nominal() {
   local nominal="8dB"
   if [[ "$CURRENT_STANDBY_TX" == "$nominal" ]]; then
@@ -146,39 +164,91 @@ next_run_id() {
 
 run_trial() {
   local variant="$1"
-  local active_tx="$2"
-  local yaml="$3"
-  local run_id
+  local yaml="$2"
+  local run_id ramp_log ramp_pid status
   run_id="$(next_run_id "$variant")"
+  ramp_log="$ROOT/artifacts/milestone-8/$SCENARIO/$variant/run-${run_id}-active-parent-ramp.log"
+  mkdir -p "$(dirname "$ramp_log")"
 
   build_config "$yaml" "8dB"
   upload_config "$yaml" "8dB" "$ED_DEVICE"
+  set_active_parent_power "${TX_STEPS[0]}"
   sleep 2
 
-  log "Capture ${SCENARIO} variant=${variant} run=${run_id} active=${active_tx} standby=8dB ed=8dB"
+  : > "$ramp_log"
+  (
+    for ((idx=1; idx<${#TX_STEPS[@]}; idx++)); do
+      sleep "$STEP_DURATION_SECONDS"
+      local tx="${TX_STEPS[$idx]}"
+      log "Scenario C run ${run_id}: switching active parent TX to ${tx}"
+      upload_config_quiet "$ACTIVE_ROUTER_YAML" "$tx" "$ACTIVE_PARENT_DEVICE" "$ramp_log"
+    done
+  ) >> "$ramp_log" 2>&1 &
+  ramp_pid=$!
+
+  log "Capture ${SCENARIO} variant=${variant} run=${run_id} active=ramp standby=8dB ed=8dB schedule=${ACTIVE_TX_SCHEDULE}"
+  set +e
+  ACTIVE_PARENT_TX_MODE="in_run_ramp" \
+  ACTIVE_PARENT_TX_SCHEDULE="$ACTIVE_TX_SCHEDULE" \
+  ACTIVE_PARENT_STEP_DURATION_SECONDS="$STEP_DURATION_SECONDS" \
+  ACTIVE_PARENT_UPLOAD_OVERHEAD_SECONDS="$UPLOAD_OVERHEAD_SECONDS" \
+  DURATION_SECONDS="$DURATION_SECONDS" \
   timeout --signal=INT "${DURATION_SECONDS}s" \
     scripts/milestone8-log-trial.sh \
-      "$variant" "$SCENARIO" "$run_id" "$active_tx" "8dB" "$yaml" "$ED_DEVICE" \
-      "$ACTIVE_PARENT_ID" "$active_tx" "8dB" || true
+      "$variant" "$SCENARIO" "$run_id" "ramp" "8dB" "$yaml" "$ED_DEVICE" \
+      "$ACTIVE_PARENT_ID" "$ACTIVE_TX_SCHEDULE" "8dB"
+  status=$?
+  set -e
+
+  if kill -0 "$ramp_pid" 2>/dev/null; then
+    kill "$ramp_pid" 2>/dev/null || true
+  fi
+  wait "$ramp_pid" 2>/dev/null || true
+  CURRENT_ACTIVE_TX=""
+
+  if [[ $status -ne 0 && $status -ne 124 && $status -ne 130 ]]; then
+    return "$status"
+  fi
 }
 
 main() {
-  log "Scenario C start: repeats=$REPEATS duration=${DURATION_SECONDS}s ed=$ED_DEVICE active_parent=$ACTIVE_PARENT_DEVICE standby=$STANDBY_ROUTER_DEVICES_CSV"
+  local minimum_duration_seconds
+  if (( STEP_DURATION_SECONDS < 1 )); then
+    echo "STEP_DURATION_SECONDS must be >= 1" >&2
+    exit 2
+  fi
+  if (( UPLOAD_OVERHEAD_SECONDS < 0 )); then
+    echo "UPLOAD_OVERHEAD_SECONDS must be >= 0" >&2
+    exit 2
+  fi
+  if (( FINAL_MARGIN_SECONDS < 0 )); then
+    echo "FINAL_MARGIN_SECONDS must be >= 0" >&2
+    exit 2
+  fi
+  minimum_duration_seconds=$((STEP_DURATION_SECONDS * ${#TX_STEPS[@]} + UPLOAD_OVERHEAD_SECONDS * (${#TX_STEPS[@]} - 1) + FINAL_MARGIN_SECONDS))
+  if (( DURATION_SECONDS < minimum_duration_seconds )); then
+    echo "DURATION_SECONDS must cover all TX steps plus upload overhead (need at least ${minimum_duration_seconds}s)" >&2
+    exit 2
+  fi
+
+  log "Scenario C start: repeats=$REPEATS duration=${DURATION_SECONDS}s step_duration=${STEP_DURATION_SECONDS}s upload_overhead=${UPLOAD_OVERHEAD_SECONDS}s final_margin=${FINAL_MARGIN_SECONDS}s ed=$ED_DEVICE active_parent=$ACTIVE_PARENT_DEVICE standby=$STANDBY_ROUTER_DEVICES_CSV schedule=${ACTIVE_TX_SCHEDULE}"
   ensure_standby_nominal
 
   for tx in "${TX_STEPS[@]}"; do
-    set_active_parent_power "$tx"
-    for ((i=1; i<=REPEATS; i++)); do
-      log "TX step $tx repeat $i/$REPEATS variant A"
-      run_trial "A" "$tx" "$A_YAML"
-      log "TX step $tx repeat $i/$REPEATS variant B"
-      run_trial "B" "$tx" "$B_YAML"
-    done
+    build_config "$ACTIVE_ROUTER_YAML" "$tx"
+  done
+
+  for ((i=1; i<=REPEATS; i++)); do
+    log "Scenario C repeat $i/$REPEATS variant A"
+    run_trial "A" "$A_YAML"
+    log "Scenario C repeat $i/$REPEATS variant B"
+    run_trial "B" "$B_YAML"
   done
 
   python3 scripts/milestone8-summarize.py
 
   if [[ "$RESTORE_NOMINAL_AT_END" == "1" ]]; then
+    CURRENT_ACTIVE_TX=""
     set_active_parent_power "8dB"
     ensure_standby_nominal
     upload_config "$B_YAML" "8dB" "$ED_DEVICE"

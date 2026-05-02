@@ -369,12 +369,14 @@ Scenario goal: isolate behavior when only the **current active parent** degrades
 
 Scenario definition:
 
-1. Start attached to active parent P1.
+1. Start attached to active parent P1 at `8dB`.
 2. Confirm Variant B has standby candidate P2/P3.
 3. Keep ED TX fixed.
 4. Keep standby router TX fixed at nominal.
-5. Step only active parent TX: `8dB -> 4dB -> 0dB -> -4dB -> -8dB -> -12dB -> -15dB`.
-6. Capture both A and B runs at each step under same placement and dataset.
+5. During a single capture run, decrease only the active parent TX over time: `8dB -> 4dB -> 0dB -> -4dB -> -8dB -> -12dB -> -15dB`.
+6. Hold each step for a fixed interval (`STEP_DURATION_SECONDS`, default `30s`) before moving to the next one.
+7. Budget per-run timeout to include both hold time and router reflash overhead (`UPLOAD_OVERHEAD_SECONDS`, default `12s`, plus a small final margin).
+8. Capture both A and B runs under the same placement and dataset while the active-parent ramp unfolds in-run.
 
 Artifacts:
 
@@ -383,7 +385,10 @@ Artifacts:
 Required metadata per run:
 
 - active parent router identity
-- active parent TX power
+- active parent TX mode (`in_run_ramp`)
+- active parent TX schedule
+- active parent step duration
+- active parent upload-overhead budget
 - standby router TX power
 - ED TX power
 - variant A/B
@@ -407,6 +412,8 @@ Variant A metrics to collect:
 Interpretation boundary:
 
 Use Scenario C to isolate the intended biparental advantage (pre-discovered standby switch path). Do **not** claim performance improvement until repeated A/C vs B/C runs are collected.
+
+Implementation note: `scripts/milestone8-scenario-c-active-parent-ramp-down.sh` now performs the active-parent TX ramp **during each run** instead of collecting separate fixed-power runs per step.
 
 ### Post-fix hardware spot-checks
 
@@ -488,6 +495,36 @@ So the code change corrected the preferred-search mechanics, but it did not yet 
 Date: 2026-04-30
 
 A longer Scenario C run set was completed at active-parent TX levels `-4dB`, `-8dB`, `-12dB`, `-15dB` using repeated A/B captures.
+
+Historical note: the batch below was collected with the earlier Scenario C harness that used one fixed active-parent TX level per run. The current runner has since been changed to ramp the active parent during a single run.
+
+### Scenario C in-run ramp rerun (corrected timeout budget)
+
+Date: 2026-05-02
+
+The in-run ramp harness was rerun after increasing the per-run timeout budget to cover both dwell time and router reflash overhead (`duration_seconds=297`, `step_duration=30s`, `upload_overhead=12s`).
+
+New ramp artifacts:
+
+- `artifacts/milestone-8/active-parent-ramp-down/A/run-015-router-ramp-ed-8dB.log`
+- `artifacts/milestone-8/active-parent-ramp-down/A/run-016-router-ramp-ed-8dB.log`
+- `artifacts/milestone-8/active-parent-ramp-down/B/run-015-router-ramp-ed-8dB.log`
+- `artifacts/milestone-8/active-parent-ramp-down/B/run-016-router-ramp-ed-8dB.log`
+
+Short summary:
+
+| Run set | Key result |
+|---|---|
+| Variant A `015-016` | remained stable in-window (`1` attach, `0` detaches in each run) |
+| Variant B `015` | `6` attaches / `5` detaches; targeted outcomes `2 success / 2 miss / 0 timeout`; generic fallback used `2` times |
+| Variant B `016` | `6` attaches / `6` detaches; targeted outcomes `2 success / 0 miss / 4 timeout`; generic fallback used `1` time |
+
+Interpretation:
+
+- the corrected timeout budget allowed the full in-run ramp schedule to complete cleanly;
+- Variant A again stayed stable through the capture window;
+- Variant B produced explicit targeted-standby successes during the in-run ramp scenario, which is a stronger signal than the earlier under-budget ramp attempt;
+- however, Variant B still showed substantial detach/reattach churn and mixed outcomes (including timeouts), so this rerun improves evidence of path exercise but does **not** by itself establish an overall performance win.
 
 Primary artifacts:
 

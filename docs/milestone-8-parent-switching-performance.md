@@ -569,3 +569,37 @@ Included runs for this longer-repeat batch:
 - At lower TX levels, Variant B behavior remains active but variable run-to-run (success and miss both present).
 
 Interpretation boundary remains unchanged: these results are promising for behavior characterization, but they are not sufficient for a performance claim without broader repeated A/C vs B/C statistics and pre-declared statistical criteria.
+
+### Scenario C in-run ramp rerun after ext-address retention fix
+
+Date: 2026-05-02
+
+After fixing Variant B standby ext-address retention, the in-run ramp scenario was rerun once more with the current harness, which now includes the finer low-end sweep (`-13dB`, `-14dB`) and final `off` step.
+
+New follow-up artifacts:
+
+- `artifacts/milestone-8/active-parent-ramp-down/A/run-017-router-ramp-ed-8dB.log`
+- `artifacts/milestone-8/active-parent-ramp-down/B/run-017-router-ramp-ed-8dB.log`
+
+Short summary:
+
+| Run set | Key result |
+|---|---|
+| Variant A `017` | remained stable in-window (`1` attach, `0` detaches) |
+| Variant B `017` | `10` attaches / `9` detaches; targeted outcomes `8 success / 0 miss / 0 timeout`; generic fallback used `1` time |
+
+Before/after evidence for the specific bug fix:
+
+- Earlier corrected-timeout runs still showed targeted requests launched with incomplete identity:
+  - `B run-015`: `target_ext=unknown` followed by `Targeted standby attach rejected: missing preferred extended address` for `0xe000`
+  - `B run-016`: the same rejection pattern repeated for `0xe000`, `0x1800`, and `0x8c00`
+- In `B run-017`, targeted requests consistently carried concrete ext-addresses, for example:
+  - `target_rloc16=0x1800 target_ext=da:97:55:79:43:a0:5a:ac`
+  - `target_rloc16=0xe000 target_ext=fa:cf:27:a3:d9:37:7f:d9`
+- `B run-017` contains no observed `target_ext=unknown` requests and no `missing preferred extended address` rejections.
+
+Interpretation:
+
+- this rerun strongly supports the ext-address retention fix as the cause of the improved targeted-attach reliability;
+- the targeted standby path is no longer failing early due to missing preferred identity in this scenario;
+- however, the broader milestone conclusion still should not be upgraded to an overall performance win from a single post-fix rerun alone.

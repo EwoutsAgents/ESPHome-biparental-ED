@@ -1,6 +1,6 @@
 # Milestone 8 — Parent Switching Performance Comparison
 
-Status: **completed with a negative result for the current policy revision**
+Status: **completed; the current policy revision did not demonstrate an overall switching-performance improvement over the default reference, although the corrected Scenario C in-run ramp did exercise explicit targeted-standby successes**
 
 ## Goal
 
@@ -104,7 +104,7 @@ Notes:
 
 - On ESP32-C6, ESPHome validates OpenThread `output_power` in the `-15dB..20dB` range.
 - `output_power` is applied at firmware startup, so fixed-power sweeps require rebuilding/reflashing per power level.
-- If true runtime ramping is later required, add a dedicated runtime control path; do not use that unless the static fixed-power sweep is insufficient.
+- Runtime ramping is now exercised through the dedicated Scenario C harness; fixed-power sweeps remain useful as controlled comparison subsets.
 
 Recommended first sweep:
 

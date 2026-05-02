@@ -543,16 +543,23 @@ Included runs for this longer-repeat batch:
 
 ### Clean-run cross-step summary (longer repeats only)
 
-| step | variant | n | standby_yes mean/med | standby_no mean/med | targeted_req mean/med | targeted_success mean/med | targeted_miss mean/med | fallback mean/med |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| -4dB | A | 3 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 |
-| -4dB | B | 3 | 36.67/36 | 13.33/13 | 2.67/3 | 1.33/1 | 2.00/2 | 1.00/1 |
-| -8dB | A | 2 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 |
-| -8dB | B | 2 | 32.00/32 | 13.00/13 | 1.50/2 | 1.00/1 | 1.00/1 | 1.00/1 |
-| -12dB | A | 2 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 |
-| -12dB | B | 2 | 42.00/42 | 12.00/12 | 3.00/3 | 2.00/2 | 2.00/2 | 1.00/1 |
-| -15dB | A | 2 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 |
-| -15dB | B | 2 | 35.00/35 | 14.50/14 | 2.00/2 | 1.00/1 | 2.00/2 | 1.00/1 |
+#### Variant A
+
+| step | n | standby_yes mean/med | standby_no mean/med | targeted_req mean/med | targeted_success mean/med | targeted_miss mean/med | fallback mean/med |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| -4dB | 3 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 |
+| -8dB | 2 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 |
+| -12dB | 2 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 |
+| -15dB | 2 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 | 0.00/0 |
+
+#### Variant B
+
+| step | n | standby_yes mean/med | standby_no mean/med | targeted_req mean/med | targeted_success mean/med | targeted_miss mean/med | fallback mean/med |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| -4dB | 3 | 36.67/36 | 13.33/13 | 2.67/3 | 1.33/1 | 2.00/2 | 1.00/1 |
+| -8dB | 2 | 32.00/32 | 13.00/13 | 1.50/2 | 1.00/1 | 1.00/1 | 1.00/1 |
+| -12dB | 2 | 42.00/42 | 12.00/12 | 3.00/3 | 2.00/2 | 2.00/2 | 1.00/1 |
+| -15dB | 2 | 35.00/35 | 14.50/14 | 2.00/2 | 1.00/1 | 2.00/2 | 1.00/1 |
 
 ### Observed pattern (descriptive only)
 

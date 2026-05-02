@@ -131,6 +131,10 @@ void BiparentalEDComponent::update() {
     metrics.valid = false;
   }
 
+  if (metrics.valid && metrics.has_parent_ext_address) {
+    this->candidate_manager_.remember_ext_address(metrics.parent_rloc16, metrics.parent_ext_address.data());
+  }
+
   // Track active parent identity for candidate filtering.
   if (metrics.valid && metrics.parent_rloc16 != 0xffff &&
       metrics.parent_rloc16 != this->candidate_manager_.active_parent_rloc16()) {
@@ -279,8 +283,9 @@ void BiparentalEDComponent::maybe_scan_neighbors_(uint32_t now_ms) {
       return;
     }
     ctx->fresh++;
-    ctx->self->candidate_manager_.observe_router_neighbor(ctx->now_ms, info.rloc16, static_cast<int8_t>(info.link_margin),
-                                                          info.average_rssi);
+    ctx->self->candidate_manager_.observe_router_neighbor(ctx->now_ms, info.rloc16,
+                                                          static_cast<int8_t>(info.link_margin), info.average_rssi,
+                                                          info.has_ext_address ? info.ext_address : nullptr);
   };
 
   (void) this->ot_adapter_->read_router_neighbors(cb, &ctx);

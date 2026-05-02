@@ -10,8 +10,61 @@ int8_t CandidateManager::compute_score_(int8_t link_margin, int8_t rssi) {
   return static_cast<int8_t>(link_margin + (rssi / 2));
 }
 
+void CandidateManager::copy_ext_address_(std::array<uint8_t, 8> &dest, const uint8_t *src) const {
+  for (std::size_t i = 0; i < dest.size(); i++) {
+    dest[i] = src[i];
+  }
+}
+
+void CandidateManager::remember_ext_address(uint16_t rloc16, const uint8_t *ext_address) {
+  if (rloc16 == 0xffff || rloc16 == 0xfffe || ext_address == nullptr) {
+    return;
+  }
+
+  ExtAddressCacheEntry *entry = nullptr;
+  ExtAddressCacheEntry *oldest = &this->ext_address_cache_[0];
+  for (auto &candidate : this->ext_address_cache_) {
+    if (candidate.valid && candidate.rloc16 == rloc16) {
+      entry = &candidate;
+      break;
+    }
+    if (!candidate.valid) {
+      entry = &candidate;
+      break;
+    }
+    if (candidate.last_update_ms <= oldest->last_update_ms) {
+      oldest = &candidate;
+    }
+  }
+
+  if (entry == nullptr) {
+    entry = oldest;
+  }
+
+  entry->valid = true;
+  entry->rloc16 = rloc16;
+  this->copy_ext_address_(entry->ext_address, ext_address);
+  entry->last_update_ms = ++this->ext_address_cache_sequence_;
+}
+
+void CandidateManager::apply_cached_ext_address_(ParentCandidate *candidate) const {
+  if (candidate == nullptr || candidate->has_ext_address || candidate->rloc16 == 0xffff || candidate->rloc16 == 0xfffe) {
+    return;
+  }
+
+  for (const auto &entry : this->ext_address_cache_) {
+    if (!entry.valid || entry.rloc16 != candidate->rloc16) {
+      continue;
+    }
+    candidate->ext_address = entry.ext_address;
+    candidate->has_ext_address = true;
+    return;
+  }
+}
+
 void CandidateManager::observe_parent_response(uint32_t now_ms, uint16_t rloc16, int8_t link_margin, int8_t rssi,
                                                const uint8_t *ext_address) {
+  this->remember_ext_address(rloc16, ext_address);
   if (rloc16 == this->active_parent_rloc16_) {
     return;
   }
@@ -25,10 +78,10 @@ void CandidateManager::observe_parent_response(uint32_t now_ms, uint16_t rloc16,
     this->standby_candidate_.score = score;
     this->standby_candidate_.last_refresh_ms = now_ms;
     if (ext_address != nullptr) {
-      for (std::size_t i = 0; i < this->standby_candidate_.ext_address.size(); i++) {
-        this->standby_candidate_.ext_address[i] = ext_address[i];
-      }
+      this->copy_ext_address_(this->standby_candidate_.ext_address, ext_address);
       this->standby_candidate_.has_ext_address = true;
+    } else {
+      this->apply_cached_ext_address_(&this->standby_candidate_);
     }
     return;
   }
@@ -46,18 +99,19 @@ void CandidateManager::observe_parent_response(uint32_t now_ms, uint16_t rloc16,
   this->standby_candidate_.rssi = rssi;
   this->standby_candidate_.score = score;
   this->standby_candidate_.last_refresh_ms = now_ms;
-  this->standby_candidate_.has_ext_address = ext_address != nullptr;
+  this->standby_candidate_.has_ext_address = false;
   if (ext_address != nullptr) {
-    for (std::size_t i = 0; i < this->standby_candidate_.ext_address.size(); i++) {
-      this->standby_candidate_.ext_address[i] = ext_address[i];
-    }
+    this->copy_ext_address_(this->standby_candidate_.ext_address, ext_address);
+    this->standby_candidate_.has_ext_address = true;
+  } else {
+    this->apply_cached_ext_address_(&this->standby_candidate_);
   }
 }
 
 void CandidateManager::observe_router_neighbor(uint32_t now_ms, uint16_t rloc16, int8_t link_margin,
-                                               int8_t average_rssi) {
+                                               int8_t average_rssi, const uint8_t *ext_address) {
   // For neighbor-table derived candidates we use average RSSI.
-  this->observe_parent_response(now_ms, rloc16, link_margin, average_rssi);
+  this->observe_parent_response(now_ms, rloc16, link_margin, average_rssi, ext_address);
 }
 
 void CandidateManager::mark_failover_complete(uint32_t now_ms, uint16_t new_active_rloc16) {
@@ -65,6 +119,9 @@ void CandidateManager::mark_failover_complete(uint32_t now_ms, uint16_t new_acti
   this->active_parent_rloc16_ = new_active_rloc16;
 
   if (this->standby_candidate_.valid && this->standby_candidate_.rloc16 == new_active_rloc16) {
+    if (this->standby_candidate_.has_ext_address) {
+      this->remember_ext_address(this->standby_candidate_.rloc16, this->standby_candidate_.ext_address.data());
+    }
     this->standby_candidate_.valid = false;
     this->standby_candidate_.last_refresh_ms = now_ms;
   }
@@ -80,6 +137,7 @@ void CandidateManager::mark_failover_complete(uint32_t now_ms, uint16_t new_acti
     this->standby_candidate_.score = compute_score_(this->standby_candidate_.link_margin, this->standby_candidate_.rssi);
     this->standby_candidate_.last_refresh_ms = now_ms;
     this->standby_candidate_.has_ext_address = false;
+    this->apply_cached_ext_address_(&this->standby_candidate_);
   }
 }
 

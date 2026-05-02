@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 
 namespace esphome {
@@ -23,6 +24,8 @@ struct ParentMetrics {
   int8_t average_rssi{-127};
   int8_t last_rssi{-127};
   uint16_t parent_rloc16{0xffff};
+  std::array<uint8_t, 8> parent_ext_address{};
+  bool has_parent_ext_address{false};
   uint8_t parent_link_margin{0};
   uint32_t parent_age_ms{0};
   bool supervision_ok{true};

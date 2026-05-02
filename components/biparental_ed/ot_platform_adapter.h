@@ -55,6 +55,8 @@ class OpenThreadPlatformAdapter {
     int8_t last_rssi{-127};
     uint8_t link_margin{0};
     uint32_t age_ms{0};
+    uint8_t ext_address[8]{};
+    bool has_ext_address{false};
   };
   using RouterNeighborCallback = void (*)(void *context, const RouterNeighborInfo &info);
   virtual bool read_router_neighbors(RouterNeighborCallback cb, void *context) = 0;
@@ -77,6 +79,7 @@ class NoopOpenThreadPlatformAdapter : public OpenThreadPlatformAdapter {
     metrics->average_rssi = -127;
     metrics->last_rssi = -127;
     metrics->parent_rloc16 = 0xffff;
+    metrics->has_parent_ext_address = false;
     metrics->parent_link_margin = 0;
     metrics->parent_age_ms = 0;
     metrics->supervision_ok = false;

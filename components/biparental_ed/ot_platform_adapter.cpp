@@ -100,6 +100,7 @@ bool EspHomeOpenThreadPlatformAdapter::read_parent_metrics(ParentMetrics *metric
   if (metrics == nullptr) {
     return false;
   }
+  metrics->has_parent_ext_address = false;
 #ifdef BIPARENTAL_ED_USE_OPENTHREAD
   auto log_throttled = [](const char *msg) {
     static uint32_t last_log_ms = 0;
@@ -163,6 +164,10 @@ bool EspHomeOpenThreadPlatformAdapter::read_parent_metrics(ParentMetrics *metric
       if (neighbor.mRloc16 == parent_rloc16) {
         parent_age_ms = neighbor.mAge * 1000U;
         parent_link_margin = neighbor.mLinkMargin;
+        for (size_t i = 0; i < metrics->parent_ext_address.size(); i++) {
+          metrics->parent_ext_address[i] = neighbor.mExtAddress.m8[i];
+        }
+        metrics->has_parent_ext_address = true;
         break;
       }
     } else if (neighbor.mAge <= best_fallback_age_s) {
@@ -232,6 +237,10 @@ bool EspHomeOpenThreadPlatformAdapter::read_router_neighbors(RouterNeighborCallb
     info.last_rssi = neighbor.mLastRssi;
     info.link_margin = neighbor.mLinkMargin;
     info.age_ms = neighbor.mAge * 1000U;
+    for (size_t i = 0; i < sizeof(info.ext_address); i++) {
+      info.ext_address[i] = neighbor.mExtAddress.m8[i];
+    }
+    info.has_ext_address = true;
     cb(context, info);
   }
 

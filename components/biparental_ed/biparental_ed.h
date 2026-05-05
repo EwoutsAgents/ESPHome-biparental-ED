@@ -67,7 +67,7 @@ class BiparentalEDComponent : public PollingComponent {
   uint32_t standby_refresh_interval_ms_{60000};
   uint32_t failover_eligible_delay_ms_{10000};
   uint32_t post_failover_stabilize_time_ms_{10000};
-  uint32_t preferred_reattach_timeout_ms_{5000};
+  uint32_t preferred_reattach_timeout_ms_{8000};
   bool enable_parent_response_callback_{true};
   uint32_t control_plane_error_threshold_{3};
   int standby_replace_hysteresis_{5};

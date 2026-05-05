@@ -90,7 +90,7 @@ class FailoverController {
   uint32_t hold_down_time_ms_{30000};
   uint32_t failover_eligible_delay_ms_{10000};
   uint32_t post_failover_stabilize_time_ms_{10000};
-  uint32_t preferred_reattach_timeout_ms_{5000};
+  uint32_t preferred_reattach_timeout_ms_{8000};
 };
 
 }  // namespace biparental_ed

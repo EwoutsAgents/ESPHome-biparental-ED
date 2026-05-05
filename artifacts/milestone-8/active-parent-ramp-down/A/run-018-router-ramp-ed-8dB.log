@@ -1,0 +1,100 @@
+INFO ESPHome 2026.4.1
+INFO Reading configuration examples/milestone-8-variant-a-reference-ed.yaml...
+INFO Starting log output from /dev/ttyACM0 with baud rate 115200
+[15:10:39.517]ESP-ROM:esp32c6-20220919
+[15:10:39.531]Build:Sep 19 2022
+[15:10:39.531]rst:0x1 (POWERON),boot:0xc (SPI_FAST_FLASH_BOOT)
+[15:10:39.531]SPIWP:0xee
+[15:10:39.531]mode:DIO, clock div:2
+[15:10:39.538]load:0x40875730,len:0x16f4
+[15:10:39.538]load:0x4086b910,len:0xed0
+[15:10:39.538]load:0x4086e610,len:0x3190
+[15:10:39.538]entry 0x4086b910
+[15:10:39.549]I (23) boot: ESP-IDF 5.5.4 2nd stage bootloader
+[15:10:39.549]I (24) boot: compile time Apr 29 2026 09:03:46
+[15:10:39.560]I (24) boot: chip revision: v0.2
+[15:10:39.560]I (24) boot: efuse block revision: v0.3
+[15:10:39.560]I (27) boot.esp32c6: SPI Speed      : 80MHz
+[15:10:39.571]I (31) boot.esp32c6: SPI Mode       : DIO
+[15:10:39.571]I (35) boot.esp32c6: SPI Flash Size : 4MB
+[15:10:39.571]I (38) boot: Enabling RNG early entropy source...
+[15:10:39.583]I (43) boot: Partition Table:
+[15:10:39.583]I (45) boot: ## Label            Usage          Type ST Offset   Length
+[15:10:39.594]I (52) boot:  0 otadata          OTA data         01 00 00009000 00002000
+[15:10:39.594]I (58) boot:  1 phy_init         RF data          01 01 0000b000 00001000
+[15:10:39.605]I (65) boot:  2 app0             OTA app          00 10 00010000 001c0000
+[15:10:39.605]I (71) boot:  3 app1             OTA app          00 11 001d0000 001c0000
+[15:10:39.616]I (78) boot:  4 nvs              WiFi data        01 02 00390000 00070000
+[15:10:39.616]I (84) boot: End of partition table
+[15:10:39.621]I (88) esp_image: segment 0: paddr=00010020 vaddr=42080020 size=17ee4h ( 98020) map
+[15:10:39.636]I (114) esp_image: segment 1: paddr=00027f0c vaddr=40800000 size=0810ch ( 33036) load
+[15:10:39.644]I (122) esp_image: segment 2: paddr=00030020 vaddr=42000020 size=703c4h (459716) map
+[15:10:39.736]I (210) esp_image: segment 3: paddr=000a03ec vaddr=4080810c size=051c0h ( 20928) load
+[15:10:39.747]I (215) esp_image: segment 4: paddr=000a55b4 vaddr=4080d2d0 size=02b28h ( 11048) load
+[15:10:39.747]I (222) boot: Loaded app from partition at offset 0x10000
+[15:10:39.750]I (222) boot: Disabling RNG early entropy source...
+[15:10:39.753]I (235) cpu_start: Unicore app
+[15:10:39.770]I (244) cpu_start: GPIO 17 and 16 are used as console UART I/O pins
+[15:10:39.770]I (244) cpu_start: Pro cpu start user code
+[15:10:39.781]I (244) cpu_start: cpu freq: 160000000 Hz
+[15:10:39.781]I (246) app_init: Application information:
+[15:10:39.781]I (250) app_init: Project name:     m8-reference-ed
+[15:10:39.792]I (254) app_init: App version:      2026.4.1
+[15:10:39.792]I (258) app_init: Compile time:     Apr 29 2026 09:03:25
+[15:10:39.803]I (263) app_init: ELF file SHA256:  b2c83a180...
+[15:10:39.803]I (268) app_init: ESP-IDF:          5.5.4
+[15:10:39.803]I (271) efuse_init: Min chip rev:     v0.0
+[15:10:39.814]I (275) efuse_init: Max chip rev:     v0.99 
+[15:10:39.814]I (279) efuse_init: Chip rev:         v0.2
+[15:10:39.825]I (283) heap_init: Initializing. RAM available for dynamic allocation:
+[15:10:39.825]I (289) heap_init: At 408170E0 len 00065530 (405 KiB): RAM
+[15:10:39.836]I (294) heap_init: At 4087C610 len 00002F54 (11 KiB): RAM
+[15:10:39.836]I (300) heap_init: At 50000000 len 00003FE8 (15 KiB): RTCRAM
+[15:10:39.836]I (306) spi_flash: detected chip: gd
+[15:10:39.847]I (308) spi_flash: flash io: dio
+[15:10:39.847]I (312) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+[15:10:39.858]I (318) sleep_gpio: Enable automatic switching of GPIO sleep configuration
+[15:10:39.858]I (324) coexist: coex firmware version: 093e3d2
+[15:10:39.858]I (328) coexist: coexist rom version 5b8dcfa
+[15:10:39.862]I (333) main_task: Started on CPU0
+[15:10:39.874]I (355) main_task: Calling app_main()
+[15:10:39.896][I][logger:120]: Log initialized
+[15:10:39.896][I][app:067]: Running through setup()
+[15:10:39.981][D][esp-idf:000][ot_main]: [N] Mle-----------: Role disabled -> detached
+[15:10:39.992][D][esp-idf:000][ot_main]: 
+[15:10:39.992][C][component:246]: Setup openthread took 90ms
+[15:10:40.003][D][esp-idf:000][ot_main]: I (468) OT_STATE: netif up
+[15:10:40.003][D][openthread:157]: Setting up SRP services. count = 1
+[15:10:40.014][D][openthread:207]: Added service: _http._tcp
+[15:10:40.014][D][openthread:211]: Finished SRP setup
+[15:10:40.025][I][app:123]: setup() finished successfully!
+[15:10:40.025][D][esp-idf:000][main]: I (373) main_task: Returned from app_main()
+[15:10:40.036][D][esp-idf:000][ot_main]: I (375) OPENTHREAD: Host connection mode none
+[15:10:40.047][D][esp-idf:000][ot_main]: I (375) phy_init: phy_version 343,b513b46,Nov 14 2025,16:34:12
+[15:10:40.058][D][esp-idf:000][ot_main]: [W] Mle-----------: Failed to process Child Update Response as child: NotFound
+[15:10:40.058][D][esp-idf:000][ot_main]: 
+[15:10:40.069][D][esp-idf:000][ot_main]: I (437) phy: libbtbb version: c493933, Nov 14 2025, 16:34:25
+[15:10:40.080][D][esp-idf:000][ot_main]: I (450) OPENTHREAD: OpenThread attached to netif
+[15:10:40.091][D][openthread:113][ot_main]: Thread Version: 4
+[15:10:40.103][D][openthread:137][ot_main]: Link Mode Device Type: FALSE, Network Data: FALSE, RX On When Idle: TRUE
+[15:10:40.103][I][openthread:152][ot_main]: Activating dataset...
+[15:10:40.114][D][esp-idf:000][ot_main]: I(454) OPENTHREAD:
+[15:10:40.114][D][esp-idf:000][ot_main]: I(488) OPENTHREAD:
+[15:10:40.125][D][esp-idf:000][ot_main]: [N] Mle-----------: Role detached -> child
+[15:10:40.125][D][esp-idf:000][ot_main]: 
+[15:10:40.136][D][esp-idf:000][ot_main]: W(488) OPENTHREAD:
+[15:10:40.147][W][component:522]: logger took a long time for an operation (100 ms), max is 30 ms
+[15:10:40.147][I][app:154]: ESPHome version 2026.4.1 compiled on 2026-04-29 10:31:34 +0200
+[15:10:40.158][I][app:161]: ESP32 Chip: ESP32-C6 rev0.2, 1 core(s)
+[15:10:40.158][C][logger:219]: Logger:
+[15:10:40.158][C][logger:219]:   Max Level: DEBUG
+[15:10:40.169][C][logger:219]:   Initial Level: DEBUG
+[15:10:40.169][C][logger:226]:   Log Baud Rate: 115200
+[15:10:40.169][C][logger:226]:   Hardware UART: UART0
+[15:10:40.180][C][logger:235]:   Task Log Buffer Size: 768 bytes
+[15:10:40.180][C][openthread:029]: Open Thread:
+[15:10:40.180][C][openthread:033]:   Device Type: MTD
+[15:10:40.191][C][openthread:040]:   Device is configured as Minimal End Device (MED)
+[15:10:40.191][C][openthread:044]:   Output power: 8dBm
+[15:10:40.197][C][mdns:194]: mDNS:
+[15:10:40.197][C][mdns:194]:   Hostname: m8-reference-ed

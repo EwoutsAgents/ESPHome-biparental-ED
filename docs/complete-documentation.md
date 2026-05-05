@@ -713,5 +713,5 @@ Outcome:
 - Repeated nominal and `-4dB` comparison batches were captured for both the default Thread reference and the biparental policy variant.
 - The parent-response callback fix restored standby discovery on the MED/MTD hardware path.
 - The current biparental policy revision did **not** demonstrate an overall switching-performance improvement over the default reference behavior in the captured comparison windows.
-- A later corrected Scenario C in-run ramp rerun did exercise explicit targeted-standby successes, but Variant B still showed substantial detach/reattach churn and mixed outcomes.
+- Later corrected Scenario C in-run reruns (`017-020`) materially improved explicit targeted-standby execution and produced repeated targeted successes after the ext-address retention fix, but Variant B still showed substantial detach/reattach churn and mixed outcomes.
 - The milestone therefore still closes with a recommendation to tune this path before any further claim of improvement.

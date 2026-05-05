@@ -1,6 +1,6 @@
 # Milestone 8 — Parent Switching Performance Comparison
 
-Status: **completed; the current policy revision did not demonstrate an overall switching-performance improvement over the default reference, although the corrected Scenario C in-run ramp did exercise explicit targeted-standby successes**
+Status: **completed; the current policy revision did not demonstrate an overall switching-performance improvement over the default reference, although the corrected Scenario C in-run reruns (`017-020`) did materially improve explicit targeted-standby execution and produced repeated targeted successes**
 
 ## Goal
 
@@ -570,36 +570,52 @@ Included runs for this longer-repeat batch:
 
 Interpretation boundary remains unchanged: these results are promising for behavior characterization, but they are not sufficient for a performance claim without broader repeated A/C vs B/C statistics and pre-declared statistical criteria.
 
-### Scenario C in-run ramp rerun after ext-address retention fix
+### Scenario C in-run ramp reruns after ext-address retention fix
 
 Date: 2026-05-02
 
-After fixing Variant B standby ext-address retention, the in-run ramp scenario was rerun once more with the current harness, which now includes the finer low-end sweep (`-13dB`, `-14dB`) and final `off` step.
+After fixing Variant B standby ext-address retention, the in-run ramp scenario was rerun again with the current harness, which now includes the finer low-end sweep (`-13dB`, `-14dB`) and final `off` step. The first post-fix rerun was `017`; later follow-up reruns `018-020` were then added to check whether the improved targeted path would repeat rather than appear only once.
 
 New follow-up artifacts:
 
 - `artifacts/milestone-8/active-parent-ramp-down/A/run-017-router-ramp-ed-8dB.log`
 - `artifacts/milestone-8/active-parent-ramp-down/B/run-017-router-ramp-ed-8dB.log`
+- `artifacts/milestone-8/active-parent-ramp-down/A/run-018-router-ramp-ed-8dB.log`
+- `artifacts/milestone-8/active-parent-ramp-down/B/run-018-router-ramp-ed-8dB.log`
+- `artifacts/milestone-8/active-parent-ramp-down/A/run-019-router-ramp-ed-8dB.log`
+- `artifacts/milestone-8/active-parent-ramp-down/B/run-019-router-ramp-ed-8dB.log`
+- `artifacts/milestone-8/active-parent-ramp-down/A/run-020-router-ramp-ed-8dB.log`
+- `artifacts/milestone-8/active-parent-ramp-down/B/run-020-router-ramp-ed-8dB.log`
 
 Short summary:
 
 | Run set | Key result |
 |---|---|
-| Variant A `017` | remained stable in-window (`1` attach, `0` detaches) |
+| Variant A `017-020` | all four reruns remained stable in-window (`1` attach, `0` detaches each) |
 | Variant B `017` | `10` attaches / `9` detaches; targeted outcomes `8 success / 0 miss / 0 timeout`; generic fallback used `1` time |
+| Variant B `018` | `8` attaches / `7` detaches; targeted outcomes `2 success / 6 miss / 0 timeout`; generic fallback used `2` times |
+| Variant B `019` | `9` attaches / `8` detaches; targeted outcomes `6 success / 2 miss / 0 timeout`; generic fallback used `1` time |
+| Variant B `020` | `8` attaches / `7` detaches; targeted outcomes `5 success / 2 miss / 0 timeout`; generic fallback used `1` time |
+
+Narrative takeaway from the four post-fix reruns:
+
+- Variant A stayed flat and stable throughout the same in-run ramp window, so the reruns did not reveal a hidden baseline instability that could explain Variant B's behavior.
+- Variant B no longer depended on the broken `target_ext=unknown` path in these reruns; targeted standby attempts now repeatedly launched with concrete preferred identity.
+- The best post-fix run (`017`) showed the intended targeted path working cleanly, while `019` and `020` also preserved multiple targeted successes.
+- `018` is the main counterexample: targeted success remained present, but misses still returned in the same rerun and generic fallback was needed twice.
+- Taken together, runs `017-020` change the milestone story from "targeted path exercised once" to "targeted path now works repeatedly, but not yet consistently enough to overturn the broader negative A-vs-B conclusion."
 
 Before/after evidence for the specific bug fix:
 
 - Earlier corrected-timeout runs still showed targeted requests launched with incomplete identity:
   - `B run-015`: `target_ext=unknown` followed by `Targeted standby attach rejected: missing preferred extended address` for `0xe000`
   - `B run-016`: the same rejection pattern repeated for `0xe000`, `0x1800`, and `0x8c00`
-- In `B run-017`, targeted requests consistently carried concrete ext-addresses, for example:
+- In `B runs 017-020`, the targeted requests carried concrete ext-addresses and no rerun showed `target_ext=unknown` or `missing preferred extended address`. For example, in `B run-017`:
   - `target_rloc16=0x1800 target_ext=da:97:55:79:43:a0:5a:ac`
   - `target_rloc16=0xe000 target_ext=fa:cf:27:a3:d9:37:7f:d9`
-- `B run-017` contains no observed `target_ext=unknown` requests and no `missing preferred extended address` rejections.
 
 Interpretation:
 
-- this rerun strongly supports the ext-address retention fix as the cause of the improved targeted-attach reliability;
+- these reruns strongly support the ext-address retention fix as the cause of the improved targeted-attach reliability;
 - the targeted standby path is no longer failing early due to missing preferred identity in this scenario;
-- however, the broader milestone conclusion still should not be upgraded to an overall performance win from a single post-fix rerun alone.
+- however, the broader milestone conclusion still should not be upgraded to an overall performance win, because Variant B continues to show substantial detach/reattach churn and still needs generic fallback in three of the four post-fix reruns.

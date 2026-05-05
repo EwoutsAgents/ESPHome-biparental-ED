@@ -12,7 +12,8 @@ void ParentHealthMonitor::evaluate(uint32_t now_ms, const ParentMetrics &metrics
 
   const bool hard_timeout = (now_ms - metrics.last_parent_rx_ms) >= this->hard_failure_timeout_ms_;
   const bool supervision_failed = !metrics.supervision_ok;
-  if (hard_timeout || supervision_failed) {
+  const bool trusted_hard_timeout = hard_timeout && !metrics.last_parent_rx_is_inferred;
+  if (trusted_hard_timeout || supervision_failed) {
     this->state_ = ParentHealthState::FAILED;
     this->fail_reason_ = ParentFailReason::HARD_TIMEOUT;
     return;

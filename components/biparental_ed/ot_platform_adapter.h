@@ -85,6 +85,7 @@ class NoopOpenThreadPlatformAdapter : public OpenThreadPlatformAdapter {
     metrics->supervision_ok = false;
     metrics->control_plane_error_count = 0;
     metrics->last_parent_rx_ms = 0;
+    metrics->last_parent_rx_is_inferred = false;
     return false;
   }
 

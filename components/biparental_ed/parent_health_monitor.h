@@ -31,6 +31,7 @@ struct ParentMetrics {
   bool supervision_ok{true};
   uint32_t control_plane_error_count{0};
   uint32_t last_parent_rx_ms{0};
+  bool last_parent_rx_is_inferred{false};
 };
 
 class ParentHealthMonitor {

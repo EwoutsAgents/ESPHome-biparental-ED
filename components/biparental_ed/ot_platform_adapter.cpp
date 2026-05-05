@@ -193,8 +193,10 @@ bool EspHomeOpenThreadPlatformAdapter::read_parent_metrics(ParentMetrics *metric
   metrics->control_plane_error_count = 0;
 
   // Approximate last parent RX timestamp from neighbor age.
+  // This is not a direct "we stopped hearing the parent" signal, so mark it as inferred.
   const uint32_t now_ms = millis();
   metrics->last_parent_rx_ms = now_ms - parent_age_ms;
+  metrics->last_parent_rx_is_inferred = true;
   return true;
 #else
   metrics->valid = false;

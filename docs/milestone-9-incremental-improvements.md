@@ -59,6 +59,44 @@ Expected outputs for this first step:
 - refreshed generated summaries,
 - a short written checkpoint summarizing whether the current code still reproduces the Milestone 8 conclusions or has already shifted materially.
 
+### Checkpoint — Scenario C-focused rerun (2026-05-05)
+
+Although Milestone 9 initially proposed rerunning the full Milestone 8 matrix first, the immediate follow-up was narrowed to **Scenario C only** so the next decisions could focus on the most promising path: explicit targeted standby switching under active-parent degradation.
+
+New Scenario C artifacts added in this checkpoint:
+
+- `artifacts/milestone-8/active-parent-ramp-down/A/run-021-router-ramp-ed-8dB.log`
+- `artifacts/milestone-8/active-parent-ramp-down/A/run-022-router-ramp-ed-8dB.log`
+- `artifacts/milestone-8/active-parent-ramp-down/B/run-021-router-ramp-ed-8dB.log`
+- `artifacts/milestone-8/active-parent-ramp-down/B/run-022-router-ramp-ed-8dB.log`
+- regenerated `artifacts/milestone-8/generated/trial-summary.csv`
+- regenerated `artifacts/milestone-8/generated/trial-summary.md`
+
+Short result summary:
+
+| Run set | Key result |
+|---|---|
+| Variant A `021-022` | both runs remained stable (`1` attach, `0` detaches each) |
+| Variant B `021` | `8` attaches / `7` detaches; targeted `5 success / 0 miss / 0 timeout`; generic fallback `2` |
+| Variant B `022` | `8` attaches / `7` detaches; targeted `3 success / 2 miss / 0 timeout`; generic fallback `3` |
+
+Extended post-fix Scenario C picture using Variant B runs `017-022`:
+
+- targeted outcomes total: `29 success / 12 miss / 0 timeout`
+- average detaches per run: `7.5`
+- average generic fallback uses per run: `1.7`
+- average trigger-to-stable window: about `3879 ms`
+
+Interpretation:
+
+- the targeted standby path continues to work repeatedly after the ext-address retention fix;
+- no new evidence suggests a return to the older `target_ext=unknown` / missing preferred identity failure mode;
+- however, the practical problem remains unchanged: Variant B still shows heavy detach/reattach churn and still escalates to generic fallback too often to call this a clean win.
+
+Milestone 9 implication:
+
+- the next engineering focus should stay on reducing generic fallback and post-switch churn within Scenario C before investing in a broader renewed A/B comparison sweep.
+
 ### 2. Reduce unnecessary generic fallback
 
 Investigate why generic fallback is still triggered after targeted standby requests, especially when the targeted path is already making progress.

@@ -729,3 +729,9 @@ Initial focus:
 - reduce post-switch detach/reattach churn,
 - improve fallback/outcome observability so follow-up tuning is easier to verify,
 - re-validate narrowly before any broader new comparison batch.
+
+Current checkpoint:
+
+- the first Milestone 9 follow-up was intentionally narrowed to Scenario C reruns (`021-022`) rather than the full matrix;
+- Variant A again stayed stable, while Variant B again showed repeated targeted successes without timeouts;
+- however, Variant B still showed substantial churn and continued generic fallback use, so the immediate Milestone 9 tuning target remains stability rather than broader claim-making.

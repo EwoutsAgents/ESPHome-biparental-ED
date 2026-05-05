@@ -97,6 +97,35 @@ Milestone 9 implication:
 
 - the next engineering focus should stay on reducing generic fallback and post-switch churn within Scenario C before investing in a broader renewed A/B comparison sweep.
 
+### Checkpoint — hard-timeout fix validation and full Scenario C retry (2026-05-05)
+
+A dedicated post-fix validation pass was executed for the parent hard-failure detection adjustment (commit `2f6e72c`), first with a short Scenario C run and then with a full rerun.
+
+Evidence artifacts and identifiers:
+
+- short-run log: `artifacts/milestone-9/m9-scenario-c-short-after-hard-timeout-fix.log`
+- full-run captures:
+  - `artifacts/milestone-8/active-parent-ramp-down/A/run-026-router-ramp-ed-8dB.log`
+  - `artifacts/milestone-8/active-parent-ramp-down/B/run-026-router-ramp-ed-8dB.log`
+- regenerated summary: `artifacts/milestone-8/generated/trial-summary.md`
+
+Observed results:
+
+- short Scenario C post-fix (`run-023`):
+  - Variant A: `attach=1`, `detach=0`, `failovers=0`
+  - Variant B: `attach=1`, `detach=0`, `failovers=0`
+- full Scenario C retry (`run-026`):
+  - Variant A: `attach=1`, `detach=0`
+  - Variant B: `attach=1`, `detach=0`
+
+Execution note:
+
+- one earlier full-run wrapper attempt was terminated by `SIGKILL` at the runner/process level before clean finalization, but subsequent rerun completed and produced `run-026` data for both A and B.
+
+Milestone 9 implication from this checkpoint:
+
+- no churn was observed in the post-fix short validation window and in the full retry run `026`, which is materially improved versus the pre-fix high-churn Scenario C behavior seen in earlier Variant B ramp runs.
+
 ### 2. Reduce unnecessary generic fallback
 
 Investigate why generic fallback is still triggered after targeted standby requests, especially when the targeted path is already making progress.

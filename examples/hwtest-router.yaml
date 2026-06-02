@@ -10,10 +10,10 @@ esp32:
   board: esp32-c6-devkitc-1
   framework:
     type: esp-idf
-    log_level: VERBOSE
+    log_level: INFO
 
 logger:
-  level: VERY_VERBOSE
+  level: DEBUG
   hardware_uart: UART0
   deassert_rts_dtr: true
 
